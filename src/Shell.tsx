@@ -1,0 +1,1811 @@
+import { useState, useLayoutEffect, useRef } from 'react'
+import {
+  SideNavigation,
+  SideNavigationItem,
+  SideNavigationGroup,
+  Table,
+  Tag,
+  Button,
+  Link,
+  Search,
+  Pagination,
+  ContentSwitch,
+  Breadcrumbs,
+  Tabs,
+  Modal,
+  Toast,
+  Toggle,
+  Checkbox,
+  InlineMessage,
+  Menu,
+  ListBox,
+  Avatar,
+  EmptyPlaceholder,
+} from '@rdc-npm/rdc-ui-v4'
+import {
+  IconHome,
+  IconUsers,
+  IconContact,
+  IconListingStatus,
+  IconNotifications,
+  IconZap,
+  IconFilter,
+  IconSort,
+  IconSparklesSm,
+  IconRealAssist,
+  IconMagicWand,
+  IconUpload,
+  IconMoreFilled,
+  IconEdit,
+  IconDelete,
+  IconCalendar,
+  IconBarChart,
+  IconOpen,
+  LogoRealtorProDefault,
+} from '@rdc-npm/rdc-ui-v4/illustrations'
+import { css } from 'styled-system/css'
+import { hstack, vstack } from 'styled-system/patterns'
+
+// ─── Sample data ──────────────────────────────────────────────────────────────
+
+type Performance = 'Above average' | 'Below average' | 'Average'
+type CompletenessColor = 'green' | 'yellow' | 'red'
+
+interface Listing {
+  id: string
+  photo: string
+  address1: string
+  address2: string
+  price: string
+  agent: string
+  email: string
+  phone: string
+  listDate: string
+  daysAgo: string
+  performance: Performance
+  completeness: number
+  completenessColor: CompletenessColor
+  promotionStatus: string
+  promoted?: boolean
+  mediaEnhanced?: boolean
+  uploadedPhotos: string[]
+  buyers: string
+}
+
+const LISTINGS: Listing[] = [
+  {
+    id: '1',
+    photo: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=160&h=120&fit=crop',
+    address1: '456 Maple Drive',
+    address2: 'Dallas, TX 75201',
+    price: '$2,450,000',
+    agent: 'Bobby Martinez',
+    email: 'bmartinez@realtor.com',
+    phone: '(214) 555-0142',
+    listDate: '02/02/25',
+    daysAgo: '3 days ago',
+    performance: 'Above average',
+    completeness: 90,
+    completenessColor: 'green',
+    promotionStatus: 'never promoted',
+    uploadedPhotos: [],
+    buyers: '3 matches',
+  },
+  {
+    id: '2',
+    photo: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=160&h=120&fit=crop',
+    address1: '5678 Broadway Ln',
+    address2: 'Austin, TX 78730',
+    price: '$1,200,000',
+    agent: 'Sophia Wang',
+    email: 'swang@realtor.com',
+    phone: '(512) 555-0187',
+    listDate: '01/18/25',
+    daysAgo: '17 days ago',
+    performance: 'Below average',
+    completeness: 30,
+    completenessColor: 'red',
+    promotionStatus: 'ended 07/25/26',
+    uploadedPhotos: [],
+    buyers: '11 matches',
+  },
+  {
+    id: '3',
+    photo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=160&h=120&fit=crop',
+    address1: '12345 Sunnyhill Way',
+    address2: 'Austin, TX 78730',
+    price: '$1,595,000',
+    agent: 'William LaClare',
+    email: 'wlaclare@realtor.com',
+    phone: '(512) 555-0163',
+    listDate: '01/18/25',
+    daysAgo: '17 days ago',
+    performance: 'Average',
+    completeness: 50,
+    completenessColor: 'yellow',
+    promotionStatus: 'ended 07/25/26',
+    uploadedPhotos: [],
+    buyers: '32 matches',
+  },
+  {
+    id: '4',
+    photo: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=160&h=120&fit=crop',
+    address1: '456 Oak Avenue',
+    address2: 'Austin, TX 78730',
+    price: '$1,595,000',
+    agent: 'Jose Carlos Zambrano',
+    email: 'jzambrano@realtor.com',
+    phone: '(512) 555-0119',
+    listDate: '01/16/25',
+    daysAgo: '19 days ago',
+    performance: 'Above average',
+    completeness: 92,
+    completenessColor: 'green',
+    promotionStatus: 'ended 07/25/26',
+    uploadedPhotos: [],
+    buyers: '3 matches',
+  },
+  {
+    id: '5',
+    photo: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=160&h=120&fit=crop',
+    address1: '1001 Northwest Way',
+    address2: 'Austin, TX 78730',
+    price: '$780,000',
+    agent: 'Mary MacGregor',
+    email: 'mmacgregor@realtor.com',
+    phone: '(512) 555-0104',
+    listDate: '01/08/25',
+    daysAgo: '27 days ago',
+    performance: 'Average',
+    completeness: 72,
+    completenessColor: 'green',
+    promotionStatus: 'ended 07/25/26',
+    uploadedPhotos: [],
+    buyers: '17 matches',
+  },
+  {
+    id: '6',
+    photo: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=160&h=120&fit=crop',
+    address1: '98765 Sawtelle Blvd',
+    address2: 'Austin, TX 78730',
+    price: '$925,000',
+    agent: 'Derek Alvarez',
+    email: 'dalvarez@realtor.com',
+    phone: '(512) 555-0176',
+    listDate: '01/08/25',
+    daysAgo: '27 days ago',
+    performance: 'Above average',
+    completeness: 88,
+    completenessColor: 'green',
+    promotionStatus: 'Promoted',
+    promoted: true,
+    uploadedPhotos: [],
+    buyers: '24 matches',
+  },
+  {
+    id: '7',
+    photo: 'https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=160&h=120&fit=crop',
+    address1: '210 Cedar Point Rd',
+    address2: 'Dallas, TX 75204',
+    price: '$640,000',
+    agent: 'Priya Nair',
+    email: 'pnair@realtor.com',
+    phone: '(214) 555-0198',
+    listDate: '01/05/25',
+    daysAgo: '30 days ago',
+    performance: 'Below average',
+    completeness: 45,
+    completenessColor: 'red',
+    promotionStatus: 'never promoted',
+    uploadedPhotos: [],
+    buyers: '8 matches',
+  },
+  {
+    id: '8',
+    photo: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=160&h=120&fit=crop',
+    address1: '7788 Lakeview Terrace',
+    address2: 'Austin, TX 78732',
+    price: '$1,150,000',
+    agent: 'Kevin Brooks',
+    email: 'kbrooks@realtor.com',
+    phone: '(512) 555-0155',
+    listDate: '12/29/24',
+    daysAgo: '37 days ago',
+    performance: 'Average',
+    completeness: 64,
+    completenessColor: 'yellow',
+    promotionStatus: 'ended 06/14/26',
+    uploadedPhotos: [],
+    buyers: '19 matches',
+  },
+  {
+    id: '9',
+    photo: 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=160&h=120&fit=crop',
+    address1: '3402 Elmwood Court',
+    address2: 'Dallas, TX 75209',
+    price: '$2,100,000',
+    agent: 'Angela Foster',
+    email: 'afoster@realtor.com',
+    phone: '(214) 555-0133',
+    listDate: '12/22/24',
+    daysAgo: '44 days ago',
+    performance: 'Above average',
+    completeness: 96,
+    completenessColor: 'green',
+    promotionStatus: 'Promoted',
+    promoted: true,
+    uploadedPhotos: [],
+    buyers: '41 matches',
+  },
+  {
+    id: '10',
+    photo: 'https://images.unsplash.com/photo-1592595896551-12b371d546d5?w=160&h=120&fit=crop',
+    address1: '556 Riverbend Dr',
+    address2: 'Austin, TX 78746',
+    price: '$540,000',
+    agent: 'Marcus Lee',
+    email: 'mlee@realtor.com',
+    phone: '(512) 555-0121',
+    listDate: '12/18/24',
+    daysAgo: '48 days ago',
+    performance: 'Average',
+    completeness: 58,
+    completenessColor: 'yellow',
+    promotionStatus: 'never promoted',
+    uploadedPhotos: [],
+    buyers: '6 matches',
+  },
+]
+
+// Performance badge → Tag color
+const PERFORMANCE_COLOR: Record<Performance, 'greenSubtle' | 'redSubtle' | 'graySubtle'> = {
+  'Above average': 'greenSubtle',
+  'Below average': 'redSubtle',
+  'Average': 'graySubtle',
+}
+
+const SEGMENTS = ['For sale', 'For rent', 'Sold', 'ListHub']
+
+const AVAILABLE_PROMOTIONS = 18
+
+function formatListedDate(mmddyy: string): string {
+  const [mm, dd, yy] = mmddyy.split('/').map(Number)
+  const date = new Date(2000 + yy, mm - 1, dd)
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+// ─── Chrome dimensions ──────────────────────────────────────────────────────────
+
+const HEADER_HEIGHT = '72px'
+const SIDEBAR_WIDTH = '300px'
+
+// ─── Top bar ────────────────────────────────────────────────────────────────────
+
+function TopBar() {
+  return (
+    <header
+      className={css({
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        h: HEADER_HEIGHT,
+        bg: 'bg.base',
+        borderBottomWidth: '100',
+        borderBottomStyle: 'solid',
+        borderColor: 'border.base',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: '600',
+        zIndex: 'navbar.fixed',
+      })}
+    >
+      <LogoRealtorProDefault
+        className={css({ display: 'block', flexShrink: 0 })}
+        style={{ height: 24, width: 193 }}
+      />
+
+      <div className={hstack({ gap: '400', alignItems: 'center' })}>
+        {/* Notification bell with red dot */}
+        <button
+          aria-label="Notifications"
+          className={css({
+            position: 'relative',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            w: '40px',
+            h: '40px',
+            borderRadius: '200',
+            cursor: 'pointer',
+            color: 'text.base',
+            _hoverSupported: { bg: 'bg.alternate' },
+          })}
+        >
+          <IconNotifications size={3} />
+          <span
+            className={css({
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              w: '8px',
+              h: '8px',
+              borderRadius: '500',
+              bg: 'status.error',
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: 'bg.base',
+            })}
+          />
+        </button>
+
+        {/* Dark rounded-square avatar with initials */}
+        <div
+          className={css({
+            w: '40px',
+            h: '40px',
+            borderRadius: '200',
+            bg: 'bg.inverse',
+            color: 'text.inverse',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textStyle: 'bodySm',
+            fontWeight: 'bold',
+          })}
+        >
+          JL
+        </div>
+      </div>
+    </header>
+  )
+}
+
+// ─── Sidebar ────────────────────────────────────────────────────────────────────
+
+function Sidebar() {
+  const [activePage, setActivePage] = useState('all-listings')
+  const [listingsOpen, setListingsOpen] = useState(true)
+
+  return (
+    <aside
+      className={css({
+        position: 'fixed',
+        top: HEADER_HEIGHT,
+        left: '0',
+        bottom: '0',
+        w: SIDEBAR_WIDTH,
+        bg: 'bg.alternate',
+        borderRightWidth: '100',
+        borderRightStyle: 'solid',
+        borderColor: 'border.base',
+        overflowY: 'auto',
+        zIndex: 'navbar.default',
+      })}
+    >
+      <SideNavigation className={css({ py: '500' })}>
+        <SideNavigationItem
+          id="dashboard"
+          topLevel
+          startIcon={<IconHome size={3} />}
+          linkText="Dashboard"
+          active={activePage === 'dashboard'}
+          onLinkClick={() => setActivePage('dashboard')}
+        />
+
+        <SideNavigationGroup
+          id="team-group"
+          show={false}
+          itemProps={{
+            id: 'team',
+            topLevel: true,
+            isParent: true,
+            startIcon: <IconUsers size={3} />,
+            linkText: 'Team',
+            listId: 'team-group',
+            show: false,
+          }}
+        >
+          <SideNavigationItem id="team-members" linkText="Members" />
+        </SideNavigationGroup>
+
+        <SideNavigationGroup
+          id="leads-group"
+          show={false}
+          itemProps={{
+            id: 'leads',
+            topLevel: true,
+            isParent: true,
+            startIcon: <IconContact size={3} />,
+            linkText: 'Leads',
+            listId: 'leads-group',
+            show: false,
+          }}
+        >
+          <SideNavigationItem id="leads-all" linkText="All leads" />
+        </SideNavigationGroup>
+
+        <SideNavigationGroup
+          id="listings-group"
+          show={listingsOpen}
+          itemProps={{
+            id: 'listings',
+            topLevel: true,
+            isParent: true,
+            startIcon: <IconListingStatus size={3} />,
+            linkText: 'Listings',
+            listId: 'listings-group',
+            show: listingsOpen,
+            onArrowClick: () => setListingsOpen((o) => !o),
+            onLinkClick: () => setListingsOpen((o) => !o),
+          }}
+        >
+          <SideNavigationItem
+            id="all-listings"
+            linkText="All listings"
+            active={activePage === 'all-listings'}
+            onLinkClick={() => setActivePage('all-listings')}
+          />
+          <SideNavigationItem
+            id="spotlight-listings"
+            linkText="Spotlight listings"
+            active={activePage === 'spotlight-listings'}
+            onLinkClick={() => setActivePage('spotlight-listings')}
+          />
+        </SideNavigationGroup>
+      </SideNavigation>
+    </aside>
+  )
+}
+
+// ─── Reusable card ──────────────────────────────────────────────────────────────
+
+function Card({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div
+      className={css({
+        bg: 'bg.base',
+        borderWidth: '100',
+        borderStyle: 'solid',
+        borderColor: 'border.base',
+        borderRadius: '300',
+        overflow: 'hidden',
+      })}
+    >
+      <div className={className}>{children}</div>
+    </div>
+  )
+}
+
+// ─── Completeness cell (dot + percent) ──────────────────────────────────────────
+
+const DOT_VAR: Record<CompletenessColor, string> = {
+  green: 'var(--colors-status-success)',
+  yellow: 'var(--colors-status-warning)',
+  red: 'var(--colors-status-error)',
+}
+
+function Completeness({ value, color }: { value: number; color: CompletenessColor }) {
+  return (
+    <span className={hstack({ gap: '200', alignItems: 'center' })}>
+      <span
+        className={css({ w: '8px', h: '8px', borderRadius: '500', flexShrink: 0 })}
+        style={{ backgroundColor: DOT_VAR[color] }}
+      />
+      <span className={css({ textStyle: 'bodySm', color: 'text.base' })}>{value}%</span>
+    </span>
+  )
+}
+
+// ─── Sortable header cell ───────────────────────────────────────────────────────
+
+function SortableHeader({ label }: { label: string }) {
+  return (
+    <span className={hstack({ gap: '200', alignItems: 'center' })}>
+      <span>{label}</span>
+      <span className={css({ color: 'text.alternate', display: 'inline-flex' })}>
+        <IconSort size={2} />
+      </span>
+    </span>
+  )
+}
+
+// ─── All listings screen ────────────────────────────────────────────────────────
+
+function AllListingsScreen({
+  listings,
+  onSelectListing,
+  onPromote,
+  onOpenPromoteListings,
+  onEnhance,
+}: {
+  listings: Listing[]
+  onSelectListing: (id: string) => void
+  onPromote: (listing: Listing) => void
+  onOpenPromoteListings: () => void
+  onEnhance: (listing: Listing) => void
+}) {
+  const [search, setSearch] = useState('')
+  const [segment, setSegment] = useState('For sale')
+  const [page, setPage] = useState(1)
+
+  return (
+    <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
+      {/* Page header */}
+      <div className={hstack({ justifyContent: 'space-between', alignItems: 'center' })}>
+        <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+          All listings
+        </h1>
+        <Button
+          styleType="Primary"
+          size="lg"
+          startIcon={<IconZap size={3} />}
+          onClick={onOpenPromoteListings}
+        >
+          Promote listings
+        </Button>
+      </div>
+
+      {/* Available promotions banner */}
+      <Card className={css({ px: '600', py: '500' })}>
+        <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
+          {AVAILABLE_PROMOTIONS} available promotions
+        </span>
+      </Card>
+
+      {/* Listings table card */}
+      <Card>
+        {/* Title row */}
+        <div className={css({ px: '600', pt: '500', pb: '400' })}>
+          <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+            <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
+              311 total listings
+            </span>
+            <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+              Data provided by MLS
+            </span>
+          </div>
+        </div>
+
+        {/* Filter row */}
+        <div
+          className={hstack({
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '400',
+            px: '600',
+            pb: '500',
+          })}
+        >
+          <div className={hstack({ gap: '300', alignItems: 'center' })}>
+            <div className={css({ w: '320px' })}>
+              <Search
+                size="inline"
+                placeholder="Search for a listing"
+                value={search}
+                sections={[]}
+                onInputChange={(v) => setSearch(v)}
+                onSearch={() => {}}
+              />
+            </div>
+            <Button styleType="Tertiary" size="lg" startIcon={<IconFilter size={3} />}>
+              Filters
+            </Button>
+          </div>
+
+          <ContentSwitch size="lg">
+            {SEGMENTS.map((s) => (
+              <ContentSwitch.Item key={s} selected={segment === s} onClick={() => setSegment(s)}>
+                {s}
+              </ContentSwitch.Item>
+            ))}
+          </ContentSwitch>
+        </div>
+
+        {/* Table */}
+        <Table lines>
+          <Table.Header>
+            <Table.Row>
+              <Table.Cell as="th"><SortableHeader label="Property" /></Table.Cell>
+              <Table.Cell as="th"><SortableHeader label="Agent" /></Table.Cell>
+              <Table.Cell as="th"><SortableHeader label="List date" /></Table.Cell>
+              <Table.Cell as="th">Performance</Table.Cell>
+              <Table.Cell as="th">Completeness</Table.Cell>
+              <Table.Cell as="th">Promotion</Table.Cell>
+              <Table.Cell as="th">Buyers</Table.Cell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {listings.map((l) => (
+              <Table.Row key={l.id}>
+                {/* Property */}
+                <Table.Cell>
+                  <div className={hstack({ gap: '400', alignItems: 'center' })}>
+                    <img
+                      src={l.photo}
+                      alt=""
+                      className={css({
+                        w: '56px',
+                        h: '48px',
+                        borderRadius: '200',
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                        bg: 'bg.alternate',
+                      })}
+                    />
+                    <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+                      <Link
+                        href="#"
+                        underline="default"
+                        size="inline"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onSelectListing(l.id)
+                        }}
+                      >
+                        {l.address1}
+                      </Link>
+                      <Link
+                        href="#"
+                        underline="default"
+                        size="inline"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onSelectListing(l.id)
+                        }}
+                      >
+                        {l.address2}
+                      </Link>
+                      <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                        {l.price}
+                      </span>
+                    </div>
+                  </div>
+                </Table.Cell>
+
+                {/* Agent */}
+                <Table.Cell>
+                  <span
+                    className={css({
+                      textStyle: 'bodySm',
+                      color: 'text.base',
+                      display: 'block',
+                      maxW: '140px',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                    })}
+                  >
+                    {l.agent}
+                  </span>
+                </Table.Cell>
+
+                {/* List date */}
+                <Table.Cell>
+                  <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+                    <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base' })}>
+                      {l.listDate}
+                    </span>
+                    <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                      {l.daysAgo}
+                    </span>
+                  </div>
+                </Table.Cell>
+
+                {/* Performance */}
+                <Table.Cell>
+                  <Tag
+                    dataColor={PERFORMANCE_COLOR[l.performance]}
+                    className={css({ whiteSpace: 'nowrap' })}
+                  >
+                    {l.performance}
+                  </Tag>
+                </Table.Cell>
+
+                {/* Completeness */}
+                <Table.Cell>
+                  <Completeness value={l.completeness} color={l.completenessColor} />
+                </Table.Cell>
+
+                {/* Promotion */}
+                <Table.Cell>
+                  {l.promoted ? (
+                    <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                      <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base' })}>
+                        Promoted
+                      </span>
+                      <Button
+                        styleType="Tertiary"
+                        size="sm"
+                        startIcon={<IconSparklesSm size={2} />}
+                        onClick={() => onEnhance(l)}
+                        className={css({ whiteSpace: 'nowrap' })}
+                      >
+                        Add media
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className={vstack({ alignItems: 'flex-start', gap: '100' })}>
+                      <Link
+                        href="#"
+                        underline="default"
+                        size="inline"
+                        startIcon={<IconZap size={2} />}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onPromote(l)
+                        }}
+                      >
+                        Promote
+                      </Link>
+                      <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+                        {l.promotionStatus}
+                      </span>
+                    </div>
+                  )}
+                </Table.Cell>
+
+                {/* Buyers */}
+                <Table.Cell>
+                  <span className={css({ textStyle: 'bodySm', color: 'text.base' })}>{l.buyers}</span>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+
+        {/* Pagination */}
+        <div className={hstack({ justifyContent: 'center', px: '600', py: '500' })}>
+          <Pagination pageCount={13} page={page} asButton onPageClick={setPage} />
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+// ─── Promote listings screen ─────────────────────────────────────────────────────
+
+function PromoteListingsScreen({
+  listings,
+  onBack,
+  onSelectListing,
+  onRequestPromote,
+}: {
+  listings: Listing[]
+  onBack: () => void
+  onSelectListing: (id: string) => void
+  onRequestPromote: (listings: Listing[]) => void
+}) {
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+
+  const BreadcrumbLink = (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <BackToListingsLink onBack={onBack} {...props} />
+  )
+
+  const eligible = listings.filter((l) => !l.promoted)
+  const filtered = eligible.filter((l) =>
+    `${l.address1} ${l.address2}`.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const handlePromoteSelected = () => {
+    const selectedListings = listings.filter((l) => selected.has(l.id))
+    onRequestPromote(selectedListings)
+    setSelected(new Set())
+  }
+
+  return (
+    <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
+      <div className={vstack({ alignItems: 'flex-start', gap: '400' })}>
+        <Breadcrumbs
+          items={[{ text: 'Spotlight Listings', href: '#' }, { text: 'Promote listings' }]}
+          LinkComponent={BreadcrumbLink}
+        />
+        <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+          Promote listings
+        </h1>
+      </div>
+
+      {/* Selected listings card */}
+      <Card className={css({ px: '600', py: '600' })}>
+        <div className={vstack({ alignItems: 'flex-start', gap: '500' })}>
+          <h2 className={css({ textStyle: 'headingSm', color: 'text.base' })}>Selected listings</h2>
+          <InlineMessage styleType="info" title={`${AVAILABLE_PROMOTIONS} promotions available`}>
+            Apply to a listing below to get premium placement and increased visibility.
+          </InlineMessage>
+        </div>
+      </Card>
+
+      {/* Table card */}
+      <Card>
+        <div
+          className={hstack({
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '400',
+            px: '600',
+            pt: '600',
+            pb: '500',
+          })}
+        >
+          <div className={vstack({ alignItems: 'flex-start', gap: '100' })}>
+            <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
+              Select listings for promotion
+            </span>
+            <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+              {eligible.length} promotions available
+            </span>
+          </div>
+          {selected.size > 0 && (
+            <div className={hstack({ gap: '400' })}>
+              <Button styleType="Tertiary" size="lg" onClick={() => setSelected(new Set())}>
+                Clear all
+              </Button>
+              <Button styleType="Primary" size="lg" onClick={handlePromoteSelected}>
+                Promote {selected.size} listing{selected.size === 1 ? '' : 's'}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className={css({ px: '600', pb: '500' })}>
+          <div className={css({ w: '320px' })}>
+            <Search
+              size="inline"
+              placeholder="Search for a listing"
+              value={search}
+              sections={[]}
+              onInputChange={(v) => setSearch(v)}
+              onSearch={() => {}}
+            />
+          </div>
+        </div>
+
+        <Table lines>
+          <Table.Header>
+            <Table.Row>
+              <Table.Cell as="th" />
+              <Table.Cell as="th"><SortableHeader label="Property" /></Table.Cell>
+              <Table.Cell as="th"><SortableHeader label="Agent" /></Table.Cell>
+              <Table.Cell as="th"><SortableHeader label="List date" /></Table.Cell>
+              <Table.Cell as="th">Completeness</Table.Cell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {filtered.map((l) => (
+              <Table.Row key={l.id}>
+                <Table.Cell>
+                  <Checkbox checked={selected.has(l.id)} onChange={() => toggleSelect(l.id)} />
+                </Table.Cell>
+
+                {/* Property */}
+                <Table.Cell>
+                  <div className={hstack({ gap: '400', alignItems: 'center' })}>
+                    <img
+                      src={l.photo}
+                      alt=""
+                      className={css({
+                        w: '56px',
+                        h: '48px',
+                        borderRadius: '200',
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                        bg: 'bg.alternate',
+                      })}
+                    />
+                    <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+                      <Link
+                        href="#"
+                        underline="default"
+                        size="inline"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onSelectListing(l.id)
+                        }}
+                      >
+                        {l.address1}
+                      </Link>
+                      <Link
+                        href="#"
+                        underline="default"
+                        size="inline"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          onSelectListing(l.id)
+                        }}
+                      >
+                        {l.address2}
+                      </Link>
+                      <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                        {l.price}
+                      </span>
+                    </div>
+                  </div>
+                </Table.Cell>
+
+                {/* Agent */}
+                <Table.Cell>
+                  <span
+                    className={css({
+                      textStyle: 'bodySm',
+                      color: 'text.base',
+                      display: 'block',
+                      maxW: '140px',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                    })}
+                  >
+                    {l.agent}
+                  </span>
+                </Table.Cell>
+
+                {/* List date */}
+                <Table.Cell>
+                  <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+                    <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base' })}>
+                      {l.listDate}
+                    </span>
+                    <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                      {l.daysAgo}
+                    </span>
+                  </div>
+                </Table.Cell>
+
+                {/* Completeness */}
+                <Table.Cell>
+                  <Completeness value={l.completeness} color={l.completenessColor} />
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+
+        {/* Pagination */}
+        <div className={hstack({ justifyContent: 'center', px: '600', py: '500' })}>
+          <Pagination pageCount={5} page={page} asButton onPageClick={setPage} />
+        </div>
+      </Card>
+    </div>
+  )
+}
+
+// ─── Listing detail screen ───────────────────────────────────────────────────────
+
+function BackToListingsLink({
+  onBack,
+  ...rest
+}: React.AnchorHTMLAttributes<HTMLAnchorElement> & { onBack: () => void }) {
+  return (
+    <a
+      {...rest}
+      onClick={(e) => {
+        e.preventDefault()
+        onBack()
+      }}
+    />
+  )
+}
+
+function ListingDetailScreen({
+  listing,
+  onBack,
+  onPromote,
+  onEnhance,
+}: {
+  listing: Listing
+  onBack: () => void
+  onPromote: (listing: Listing) => void
+  onEnhance: (listing: Listing) => void
+}) {
+  const BreadcrumbLink = (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <BackToListingsLink onBack={onBack} {...props} />
+  )
+  const [walkthroughAdded, setWalkthroughAdded] = useState(true)
+  const [pendingToggle, setPendingToggle] = useState<'add' | 'remove' | null>(null)
+
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [photoHeight, setPhotoHeight] = useState<number | null>(null)
+
+  useLayoutEffect(() => {
+    if (contentRef.current) {
+      setPhotoHeight(contentRef.current.getBoundingClientRect().height)
+    }
+  }, [listing.id])
+
+  const initials = listing.agent.split(' ')
+
+  return (
+    <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
+      {/* Header */}
+      <div className={vstack({ alignItems: 'flex-start', gap: '600' })}>
+        <Breadcrumbs
+          items={[
+            { text: 'All listings', href: '#' },
+            { text: `${listing.address1}, ${listing.address2}` },
+          ]}
+          LinkComponent={BreadcrumbLink}
+        />
+
+        <div className={hstack({ gap: '500', alignItems: 'flex-start' })}>
+          <div
+            className={css({
+              borderRadius: '300',
+              overflow: 'hidden',
+              flexShrink: 0,
+              bg: 'bg.alternate',
+            })}
+            style={{
+              height: photoHeight ?? undefined,
+              width: photoHeight ? (photoHeight * 4) / 3 : undefined,
+            }}
+          >
+            <img
+              src={listing.photo}
+              alt=""
+              className={css({ w: '100%', h: '100%', objectFit: 'cover', display: 'block' })}
+            />
+          </div>
+          <div ref={contentRef} className={vstack({ alignItems: 'flex-start', gap: '300' })}>
+            <div className={hstack({ gap: '200', alignItems: 'center' })}>
+              {listing.promoted && (
+                <Tag dataColor="blue" startIcon={<IconZap size={2} />}>
+                  Spotlight Listing
+                </Tag>
+              )}
+              <Tag dataColor="green">For Sale</Tag>
+              <Tag dataColor="graySubtle" startIcon={<IconCalendar size={2} />}>
+                {listing.daysAgo.replace(' ago', ' on market')}
+              </Tag>
+            </div>
+            <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+              {listing.address1}, {listing.address2}
+            </h1>
+            <div className={hstack({ gap: '300', alignItems: 'center' })}>
+              <span className={css({ textStyle: 'bodyMd', color: 'text.alternate' })}>
+                {listing.price}
+              </span>
+              <span className={css({ textStyle: 'bodyMd', color: 'text.alternate' })}>•</span>
+              <span className={css({ textStyle: 'bodyMd', color: 'text.alternate' })}>
+                Listed: {formatListedDate(listing.listDate)}
+              </span>
+            </div>
+            <div className={hstack({ gap: '400', alignItems: 'center' })}>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <Avatar size="xs" initials={initials} />
+                <Link href="#" underline="default" size="inline">
+                  {listing.agent}
+                </Link>
+              </div>
+              <Link href="#" underline="default" size="lg" endIcon={<IconOpen size={2} />}>
+                View on Realtor.com
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <Tabs defaultValue="details">
+        <Tabs.List>
+          <Tabs.Trigger value="insights">Insights</Tabs.Trigger>
+          <Tabs.Trigger value="details">Listing details</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="insights">
+          <div className={vstack({ alignItems: 'center', justifyContent: 'center', minH: '400px' })}>
+            <EmptyPlaceholder
+              media={<IconBarChart size={5} />}
+              title="Insights coming soon"
+              description="Performance and buyer engagement insights for this listing will appear here."
+            />
+          </div>
+        </Tabs.Content>
+        <Tabs.Content value="details">
+          <div
+            className={css({
+              mt: '400',
+              bg: 'bg.base',
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: 'border.base',
+              borderRadius: '300',
+              p: '800',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '400',
+            })}
+          >
+            {listing.mediaEnhanced ? (
+              <div className={vstack({ alignItems: 'flex-start', gap: '600', w: '100%' })}>
+                <div className={vstack({ alignItems: 'flex-start', gap: '200', w: '100%' })}>
+                  <div
+                    className={hstack({
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '400',
+                      w: '100%',
+                    })}
+                  >
+                    <div className={hstack({ gap: '400', alignItems: 'center' })}>
+                      <IconRealAssist size={3} />
+                      <h2 className={css({ textStyle: 'headingSm', color: 'text.base' })}>
+                        Enhanced media
+                      </h2>
+                    </div>
+                    <Toggle
+                      checked={walkthroughAdded}
+                      onChange={(_, checked) => setPendingToggle(checked ? 'add' : 'remove')}
+                    >
+                      {walkthroughAdded ? 'On' : 'Off'}
+                    </Toggle>
+                  </div>
+                  <p className={css({ textStyle: 'bodyMd', color: 'text.alternate', w: '100%' })}>
+                    Your uploaded photos are enhanced with AI to make your Spotlight Listing stand
+                    out. Turn it off at anytime.
+                  </p>
+                </div>
+
+                <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                  <div className={hstack({ gap: '500', alignItems: 'center' })}>
+                    <div className={hstack({ gap: '200', alignItems: 'center' })}>
+                      {listing.uploadedPhotos.slice(0, 4).map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt=""
+                          className={css({
+                            w: '95px',
+                            h: '63px',
+                            borderRadius: '200',
+                            objectFit: 'cover',
+                            flexShrink: 0,
+                            bg: 'bg.alternate',
+                          })}
+                        />
+                      ))}
+                    </div>
+                    <Button styleType="Tertiary" size="sm" onClick={() => onEnhance(listing)}>
+                      Edit photos
+                    </Button>
+                  </div>
+                  <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+                    Showing {Math.min(4, listing.uploadedPhotos.length)} of{' '}
+                    {listing.uploadedPhotos.length} photos
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className={hstack({ alignItems: 'center', gap: '700', w: '100%' })}>
+                {listing.promoted ? (
+                  <>
+                    <div className={vstack({ alignItems: 'flex-start', gap: '300', flex: '1' })}>
+                      <h2 className={css({ textStyle: 'headingSm', color: 'text.base' })}>
+                        Enhance your Spotlight Listing
+                      </h2>
+                      <p className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                        Your Spotlight Listing is live. Add images and we'll transform your photos
+                        into immersive video and AI-enhanced media, giving buyers a fuller picture of
+                        the home and helping your listing stand out.
+                      </p>
+                    </div>
+                    <Button
+                      styleType="Primary"
+                      size="lg"
+                      startIcon={<IconSparklesSm size={3} />}
+                      onClick={() => onEnhance(listing)}
+                    >
+                      Enhance promotion
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <div className={vstack({ alignItems: 'flex-start', gap: '300', flex: '1' })}>
+                      <h2 className={css({ textStyle: 'headingSm', color: 'text.base' })}>
+                        Promote with Spotlight Listings
+                      </h2>
+                      <p className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                        Stand out with priority placement, now with AI-enhanced media to give buyers
+                        a richer way to explore the listing.
+                      </p>
+                    </div>
+                    <Button
+                      styleType="Primary"
+                      size="lg"
+                      startIcon={<IconZap size={3} />}
+                      onClick={() => onPromote(listing)}
+                    >
+                      Promote
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </Tabs.Content>
+      </Tabs>
+
+      <Modal open={pendingToggle !== null} onClose={() => setPendingToggle(null)}>
+        <Modal.Header
+          title={
+            pendingToggle === 'remove'
+              ? 'Remove enhanced media from your listing?'
+              : 'Add enhanced media to your listing?'
+          }
+        />
+        <Modal.Body>
+          <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
+            {pendingToggle === 'remove'
+              ? 'Your AI enhanced media is live on your listing. Removing it will change how your listing appears to buyers.'
+              : "We'll reuse the enhanced media already generated for this listing. No new media will be created."}
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className={hstack({ gap: '400', justifyContent: 'flex-end', w: '100%' })}>
+            <Button styleType="Tertiary" size="lg" onClick={() => setPendingToggle(null)}>
+              Cancel
+            </Button>
+            <Button
+              styleType="Primary"
+              size="lg"
+              onClick={() => {
+                setWalkthroughAdded(pendingToggle === 'add')
+                setPendingToggle(null)
+              }}
+            >
+              {pendingToggle === 'remove' ? 'Remove from listing' : 'Add to listing'}
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  )
+}
+
+// ─── Photo thumbnail ────────────────────────────────────────────────────────────
+
+function PhotoThumbnail({ src, onDelete }: { src: string; onDelete: () => void }) {
+  return (
+    <div
+      className={css({
+        position: 'relative',
+        w: '190px',
+        aspectRatio: '3 / 2',
+        borderRadius: '200',
+        overflow: 'hidden',
+        bg: 'bg.alternate',
+        flexShrink: 0,
+      })}
+    >
+      <img
+        src={src}
+        alt=""
+        className={css({ w: '100%', h: '100%', objectFit: 'cover', display: 'block' })}
+      />
+      <div className={css({ position: 'absolute', bottom: '200', right: '200' })}>
+        <Menu width={180} placement="bottom-end">
+          <Menu.Toggle>
+            <button
+              type="button"
+              aria-label="Photo options"
+              className={css({
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                w: '32px',
+                h: '32px',
+                borderRadius: '500',
+                bg: 'bg.inverse',
+                color: 'text.inverse',
+                cursor: 'pointer',
+                _hoverSupported: { bg: 'bg.inverse.alternate' },
+              })}
+            >
+              <IconMoreFilled size={2} />
+            </button>
+          </Menu.Toggle>
+          <Menu.List>
+            <ListBox.Item value="edit" startAddon={<IconEdit size={2} />}>
+              Edit photo
+            </ListBox.Item>
+            <ListBox.Item value="delete" startAddon={<IconDelete size={2} />} onClick={onDelete}>
+              Delete photo
+            </ListBox.Item>
+          </Menu.List>
+        </Menu>
+      </div>
+    </div>
+  )
+}
+
+// ─── Photo upload screen ─────────────────────────────────────────────────────────
+
+const SAMPLE_HOUSE_PHOTOS = [
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=400&h=267&fit=crop',
+  'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=400&h=267&fit=crop',
+]
+
+function PhotoUploadScreen({
+  listing,
+  onBack,
+  onSave,
+}: {
+  listing: Listing
+  onBack: () => void
+  onSave: (photos: string[]) => void
+}) {
+  const [photos, setPhotos] = useState<string[]>(listing.uploadedPhotos)
+  const [optimize, setOptimize] = useState(true)
+  const [deleteTarget, setDeleteTarget] = useState<{ index: number; src: string } | null>(null)
+
+  const handleDropzoneClick = () => {
+    const remaining = SAMPLE_HOUSE_PHOTOS.filter((url) => !photos.includes(url))
+    if (remaining.length === 0) return
+    const batchSize = photos.length === 0 ? 5 : 3
+    setPhotos((prev) => [...prev, ...remaining.slice(0, batchSize)])
+  }
+
+  const handleDeletePhoto = (index: number) => {
+    const src = photos[index]
+    if (listing.uploadedPhotos.includes(src)) {
+      setDeleteTarget({ index, src })
+    } else {
+      setPhotos((prev) => prev.filter((_, i) => i !== index))
+    }
+  }
+
+  return (
+    <div className={css({ minH: '100dvh', bg: 'bg.base' })}>
+      <div className={vstack({ alignItems: 'stretch', gap: '600', px: '1600', py: '800', pb: '1600' })}>
+        <div className={vstack({ alignItems: 'flex-start', gap: '300' })}>
+          <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+            Enhanced media photo upload
+          </h1>
+          <p className={css({ textStyle: 'bodyMd', color: 'text.base', maxW: '900px' })}>
+            Upload every photo you have the rights to use. More photos means a richer, more immersive
+            experience for buyers, from wide exterior shots to close-up details that tell the full
+            story of the property.
+          </p>
+        </div>
+
+        <div
+          className={css({
+            bg: 'bg.base',
+            borderWidth: '100',
+            borderStyle: 'solid',
+            borderColor: 'border.base',
+            borderRadius: '300',
+            p: '800',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '600',
+          })}
+        >
+          <div className={vstack({ alignItems: 'flex-start', gap: '100' })}>
+            <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
+              Photos ({photos.length})
+            </span>
+            <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+              Minimum 5 photos required for custom photos
+            </span>
+          </div>
+
+          {/* Optimize toggle bubble */}
+          <div
+            className={hstack({
+              gap: '500',
+              alignItems: 'flex-start',
+              bg: 'bg.alternate',
+              borderRadius: '300',
+              p: '500',
+            })}
+          >
+            <IconMagicWand size={3} />
+            <div className={vstack({ alignItems: 'flex-start', gap: '100', flex: '1' })}>
+              <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
+                Automatically optimize my photos
+              </span>
+              <span className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+                Conservative enhancements only (lighting, color, geometry). ON by default.
+              </span>
+            </div>
+            <Toggle checked={optimize} onChange={(_, checked) => setOptimize(checked)} />
+          </div>
+
+          {/* Dropzone */}
+          <button
+            type="button"
+            onClick={handleDropzoneClick}
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '300',
+              w: '100%',
+              px: '600',
+              py: '700',
+              bg: 'bg.base',
+              borderWidth: '200',
+              borderStyle: 'dashed',
+              borderColor: 'border.base',
+              borderRadius: '200',
+              cursor: 'pointer',
+              _hoverSupported: { bg: 'bg.alternate' },
+            })}
+          >
+            <IconUpload size={3} />
+            <div className={vstack({ alignItems: 'center', gap: '200' })}>
+              <span className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+                Drag and drop your file(s) here or{' '}
+                <span className={css({ textDecoration: 'underline', fontWeight: 'medium' })}>
+                  browse files
+                </span>
+              </span>
+              <span className={css({ textStyle: 'bodyMd', color: 'text.alternate' })}>
+                JPG, PNG, HEIC | Max 20MB | Min 1,000px
+              </span>
+            </div>
+          </button>
+
+          {/* Thumbnails */}
+          {photos.length > 0 && (
+            <div className={hstack({ gap: '300', alignItems: 'center', flexWrap: 'wrap' })}>
+              {photos.map((src, i) => (
+                <PhotoThumbnail key={i} src={src} onDelete={() => handleDeletePhoto(i)} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Sticky footer */}
+      <div
+        className={css({
+          position: 'fixed',
+          bottom: '0',
+          left: '0',
+          right: '0',
+          bg: 'bg.base',
+          borderTopWidth: '100',
+          borderTopStyle: 'solid',
+          borderColor: 'border.base',
+          boxShadow: 'dialog',
+          p: '500',
+        })}
+      >
+        <div className={hstack({ justifyContent: 'flex-end', gap: '400' })}>
+          <Button styleType="Tertiary" size="lg" onClick={onBack}>
+            Go back
+          </Button>
+          <Button
+            styleType="Primary"
+            size="lg"
+            disabled={photos.length === 0}
+            onClick={() => onSave(photos)}
+          >
+            Save images
+          </Button>
+        </div>
+      </div>
+
+      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+        <Modal.Header title="This photo is live on your listing" />
+        <Modal.Body>
+          <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
+            Deleting this photo will remove it from your listing photos, but it may still appear in
+            AI-generated media that's already live.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className={hstack({ gap: '400', justifyContent: 'flex-end', w: '100%' })}>
+            <Button styleType="Tertiary" size="lg" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              styleType="Primary"
+              size="lg"
+              onClick={() => {
+                if (deleteTarget) {
+                  setPhotos((prev) => prev.filter((_, i) => i !== deleteTarget.index))
+                }
+                setDeleteTarget(null)
+              }}
+            >
+              Delete photo
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  )
+}
+
+// ─── Promote modal ──────────────────────────────────────────────────────────────
+
+function PromoteModal({
+  listings,
+  onClose,
+  onConfirm,
+}: {
+  listings: Listing[] | null
+  onClose: () => void
+  onConfirm: () => void
+}) {
+  const count = listings?.length ?? 0
+  return (
+    <Modal open={!!listings} onClose={onClose}>
+      <Modal.Header
+        title={`Apply ${count} of your ${AVAILABLE_PROMOTIONS} available promotions?`}
+      />
+      <Modal.Body>
+        <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
+          {count === 1
+            ? 'Your promotion will start shortly and run until the listing is sold or off market.'
+            : 'Your promotions will start shortly and run until each listing is sold or off market.'}
+        </p>
+      </Modal.Body>
+      <Modal.Footer>
+        <div className={hstack({ gap: '400', justifyContent: 'flex-end', w: '100%' })}>
+          <Button styleType="Tertiary" size="lg" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button styleType="Primary" size="lg" onClick={onConfirm}>
+            Promote listing{count === 1 ? '' : 's'}
+          </Button>
+        </div>
+      </Modal.Footer>
+    </Modal>
+  )
+}
+
+// ─── Save images consent modal ───────────────────────────────────────────────────
+
+function SaveImagesModal({
+  open,
+  onClose,
+  onDeny,
+  onConfirm,
+}: {
+  open: boolean
+  onClose: () => void
+  onDeny: () => void
+  onConfirm: () => void
+}) {
+  const [agreed, setAgreed] = useState(false)
+
+  const handleClose = () => {
+    setAgreed(false)
+    onClose()
+  }
+
+  const handleDeny = () => {
+    setAgreed(false)
+    onDeny()
+  }
+
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <Modal.Header title="Allow Realtor.com to enhance your photos" />
+      <Modal.Body>
+        <div className={vstack({ alignItems: 'stretch', gap: '600' })}>
+          <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+            To publish your custom photos with immersive media, we need to ensure you are the
+            copyright owner or authorized licensee of your photos.
+          </p>
+
+          <div
+            className={vstack({
+              alignItems: 'flex-start',
+              gap: '400',
+              bg: 'bg.alternate',
+              borderRadius: '300',
+              p: '600',
+            })}
+          >
+            <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
+              Terms &amp; Conditions
+            </span>
+            <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+              By accepting, you grant Realtor.com a non-exclusive, worldwide, royalty free license
+              to use, reproduce, display, and create derivative works of the photos you upload{' '}
+              <strong>solely to produce and display enhanced media on your listing details page.</strong>
+            </p>
+            <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+              You retain full ownership of your original photos. You may revoke this permission at
+              any time from your listing edit page. Full terms available in our{' '}
+              <Link href="#" underline="default" size="inline">
+                Photo License Agreement.
+              </Link>
+            </p>
+          </div>
+
+          <div
+            className={css({
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: 'border.base',
+              borderRadius: '300',
+              p: '500',
+            })}
+          >
+            <Checkbox checked={agreed} onChange={(_, checked) => setAgreed(checked)}>
+              I confirm that I am the copyright owner or authorized licensee of all photos I am
+              uploading.
+            </Checkbox>
+          </div>
+
+          <InlineMessage styleType="warning">
+            If you deny permission, your photos will not be uploaded.
+          </InlineMessage>
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <div className={hstack({ gap: '400', justifyContent: 'flex-end', w: '100%' })}>
+          <Button styleType="Ghost" onClick={handleDeny}>
+            Deny permission
+          </Button>
+          <Button
+            styleType="Primary"
+            size="lg"
+            disabled={!agreed}
+            onClick={() => {
+              setAgreed(false)
+              onConfirm()
+            }}
+          >
+            Save photos
+          </Button>
+        </div>
+      </Modal.Footer>
+    </Modal>
+  )
+}
+
+// ─── Shell ──────────────────────────────────────────────────────────────────────
+
+type View =
+  | { page: 'list' }
+  | { page: 'detail'; listingId: string }
+  | { page: 'photo-upload'; listingId: string }
+  | { page: 'promote-listings' }
+
+export default function Shell() {
+  const [listings, setListings] = useState<Listing[]>(LISTINGS)
+  const [view, setView] = useState<View>({ page: 'list' })
+  const [promoteTargets, setPromoteTargets] = useState<Listing[] | null>(null)
+  const [toastListingId, setToastListingId] = useState<string | null>(null)
+  const [showSaveConsent, setShowSaveConsent] = useState(false)
+  const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
+
+  const selectedListing =
+    view.page === 'detail' || view.page === 'photo-upload'
+      ? listings.find((l) => l.id === view.listingId)
+      : undefined
+
+  const handleConfirmPromote = () => {
+    if (promoteTargets && promoteTargets.length > 0) {
+      const promotedIds = promoteTargets.map((l) => l.id)
+      setListings((prev) =>
+        prev.map((l) =>
+          promotedIds.includes(l.id) ? { ...l, promoted: true, promotionStatus: 'Promoted' } : l
+        )
+      )
+      if (promotedIds.length === 1) {
+        setView({ page: 'detail', listingId: promotedIds[0] })
+        setToastListingId(promotedIds[0])
+      } else {
+        setView({ page: 'list' })
+      }
+    }
+    setPromoteTargets(null)
+  }
+
+  const showSidebar = view.page !== 'photo-upload'
+
+  return (
+    <div className={css({ minW: '1280px', minH: '100dvh', bg: 'bg.base' })}>
+      <TopBar />
+      {showSidebar && <Sidebar />}
+      <main
+        className={css({ pt: HEADER_HEIGHT })}
+        style={{ marginLeft: showSidebar ? SIDEBAR_WIDTH : '0' }}
+      >
+        {view.page === 'photo-upload' && selectedListing ? (
+          <PhotoUploadScreen
+            listing={selectedListing}
+            onBack={() => setView({ page: 'detail', listingId: selectedListing.id })}
+            onSave={(photos) => {
+              const hasNewPhotos = photos.some((p) => !selectedListing.uploadedPhotos.includes(p))
+              if (hasNewPhotos) {
+                setPendingPhotos(photos)
+                setShowSaveConsent(true)
+              } else {
+                const targetId = selectedListing.id
+                setListings((prev) =>
+                  prev.map((l) => (l.id === targetId ? { ...l, uploadedPhotos: photos } : l))
+                )
+                setView({ page: 'detail', listingId: targetId })
+              }
+            }}
+          />
+        ) : (
+          <div className={css({ maxW: '1140px', mx: 'auto', px: '700', py: '700' })}>
+            {view.page === 'list' && (
+              <AllListingsScreen
+                listings={listings}
+                onSelectListing={(id) => setView({ page: 'detail', listingId: id })}
+                onPromote={(listing) => setPromoteTargets([listing])}
+                onOpenPromoteListings={() => setView({ page: 'promote-listings' })}
+                onEnhance={(listing) => setView({ page: 'photo-upload', listingId: listing.id })}
+              />
+            )}
+            {view.page === 'promote-listings' && (
+              <PromoteListingsScreen
+                listings={listings}
+                onBack={() => setView({ page: 'list' })}
+                onSelectListing={(id) => setView({ page: 'detail', listingId: id })}
+                onRequestPromote={(selectedListings) => setPromoteTargets(selectedListings)}
+              />
+            )}
+            {view.page === 'detail' && selectedListing && (
+              <ListingDetailScreen
+                listing={selectedListing}
+                onBack={() => setView({ page: 'list' })}
+                onPromote={(listing) => setPromoteTargets([listing])}
+                onEnhance={(listing) => setView({ page: 'photo-upload', listingId: listing.id })}
+              />
+            )}
+          </div>
+        )}
+      </main>
+
+      <PromoteModal
+        listings={promoteTargets}
+        onClose={() => setPromoteTargets(null)}
+        onConfirm={handleConfirmPromote}
+      />
+
+      <SaveImagesModal
+        open={showSaveConsent}
+        onClose={() => setShowSaveConsent(false)}
+        onDeny={() => setShowSaveConsent(false)}
+        onConfirm={() => {
+          setShowSaveConsent(false)
+          if (selectedListing) {
+            const targetId = selectedListing.id
+            setListings((prev) =>
+              prev.map((l) =>
+                l.id === targetId ? { ...l, uploadedPhotos: pendingPhotos, mediaEnhanced: true } : l
+              )
+            )
+            setView({ page: 'detail', listingId: targetId })
+          }
+        }}
+      />
+
+      <Toast
+        show={!!toastListingId}
+        onClose={() => setToastListingId(null)}
+        status="success"
+        title="Your listing has been promoted and will begin later today."
+      />
+    </div>
+  )
+}
