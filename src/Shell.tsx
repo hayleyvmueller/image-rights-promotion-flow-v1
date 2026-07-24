@@ -41,7 +41,24 @@ import {
   IconCalendar,
   IconBarChart,
   IconOpen,
+  IconGridView,
+  IconBuildingOverview,
+  IconAgent,
+  IconArrowLeft,
+  IconCamera,
+  IconChevronDown,
+  IconChevronUp,
+  IconClipboard,
+  IconLink,
+  IconPlay,
+  IconOpenHouse,
+  IconPhotos,
+  IconClose,
+  IconWarningColorFilled,
+  IconProfile,
   LogoRealtorProDefault,
+  LogoBrandWhite,
+  LogoBrand,
 } from '@rdc-npm/rdc-ui-v4/illustrations'
 import { css } from 'styled-system/css'
 import { hstack, vstack } from 'styled-system/patterns'
@@ -1678,6 +1695,1411 @@ function SaveImagesModal({
   )
 }
 
+// ─── Experience nav panel ─────────────────────────────────────────────────────────
+
+type Experience = 'overview' | 'team' | 'agent'
+
+const EXPERIENCES: { id: Experience; label: string; icon: React.ReactNode }[] = [
+  { id: 'overview', label: 'Overview', icon: <IconBuildingOverview size={3} /> },
+  { id: 'team', label: 'Team experience', icon: <IconUsers size={3} /> },
+  { id: 'agent', label: 'Agent experience', icon: <IconAgent size={3} /> },
+]
+
+function ExperienceNavTrigger({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label="Switch experience"
+      onClick={onClick}
+      className={css({
+        position: 'fixed',
+        bottom: '500',
+        left: '500',
+        zIndex: 'toast',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        w: '48px',
+        h: '48px',
+        borderRadius: '500',
+        bg: 'bg.inverse',
+        color: 'text.inverse',
+        cursor: 'pointer',
+        boxShadow: 'dialog',
+        _hoverSupported: { bg: 'bg.inverse.alternate' },
+      })}
+    >
+      <IconGridView size={3} />
+    </button>
+  )
+}
+
+function ExperienceNavPanel({
+  open,
+  experience,
+  onClose,
+  onSelect,
+}: {
+  open: boolean
+  experience: Experience
+  onClose: () => void
+  onSelect: (experience: Experience) => void
+}) {
+  return (
+    <Modal open={open} onClose={onClose} layout="drawer" drawerPosition="left" size="sm">
+      <Modal.Header title="Prototype navigation" />
+      <Modal.Body noPadding>
+        <ListBox>
+          {EXPERIENCES.map((exp) => (
+            <ListBox.Item
+              key={exp.id}
+              value={exp.id}
+              startAddon={exp.icon}
+              selected={experience === exp.id}
+              onClick={() => onSelect(exp.id)}
+            >
+              {exp.label}
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Modal.Body>
+    </Modal>
+  )
+}
+
+function PlaceholderExperience({ label }: { label: string }) {
+  return (
+    <div
+      className={css({
+        minH: '100dvh',
+        pt: HEADER_HEIGHT,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      })}
+    >
+      <EmptyPlaceholder
+        title={label}
+        description="This experience hasn't been brought into the prototype yet."
+      />
+    </div>
+  )
+}
+
+// ─── Agent experience: enhanced media email preview ──────────────────────────────
+
+const INBOX_MESSAGES = [
+  {
+    id: 'enhanced-media',
+    sender: 'realtor.com PRO',
+    subject: 'Your listing now has enhanced media',
+    snippet: 'Your team has added enhanced media to 456 Maple Drive...',
+    time: '9:41 AM',
+  },
+  {
+    id: '2',
+    sender: 'Realtor.com PRO Support',
+    subject: 'Your monthly performance report is ready',
+    snippet: 'See how your listings performed in June...',
+    time: '2 days ago',
+  },
+  {
+    id: '3',
+    sender: 'LeadConnect',
+    subject: 'New lead: Sarah Chen is interested',
+    snippet: 'A buyer has requested more info on a listing...',
+    time: '3 days ago',
+  },
+  {
+    id: '4',
+    sender: 'MLS Connect',
+    subject: 'Listing sync completed for 12 properties',
+    snippet: 'Your MLS data has been synced successfully...',
+    time: '5 days ago',
+  },
+  {
+    id: '5',
+    sender: 'DocuSign',
+    subject: 'Please sign: Listing agreement',
+    snippet: 'Bobby Martinez sent you a document to sign...',
+    time: '1 week ago',
+  },
+]
+
+// ─── Legacy listing detail page (destination when clicking the email) ────────────
+
+const LEGACY_BLUE = '[#4052a2]'
+const LEGACY_DARK = '[#181c24]'
+const LEGACY_GRAY = '[#616f86]'
+const LEGACY_BORDER = '[#e3e6e9]'
+const LEGACY_BG = '[#f8f8f9]'
+const LEGACY_INPUT_BORDER = '[#b9bfc9]'
+const LEGACY_NAV_ACTIVE = '[#364bc4]'
+const LEGACY_BREADCRUMB = '[#48566c]'
+const LEGACY_RED = '[#d92228]'
+const LEGACY_WARNING_BG = '[#ffefcc]'
+const LEGACY_STRIPE = '[#6677d0]'
+
+const LEGACY_NAV_ITEMS = ['Home', 'Contacts', 'Tasks', 'Listings', 'Listing presentations']
+const LEGACY_NAV_DROPDOWNS = ['Profile', 'Performance', 'My Team', 'Products & Billing', 'Help']
+const LEGACY_TABS = ['Performance', 'Matching buyers', 'Promotions', 'Listing details']
+
+const LEGACY_RECOMMENDATIONS = [
+  {
+    title: 'Add at least 11 photos',
+    description: 'Listings with at least 11 photos get more potential buyer interest',
+    actions: ['Add here', 'Add on your MLS'],
+    lift: '+5%',
+  },
+  {
+    title: 'Add at least 1 school',
+    description: 'Listings with the high school district/name attract more interest from potential buyers',
+    actions: ['Add on your MLS'],
+    lift: '+5%',
+  },
+  {
+    title: 'Add HOA/Association fee amount',
+    description: 'About 16% of buyers place value on knowing the homeowner association (HOA) fee amount',
+    actions: ['Add on your MLS'],
+    lift: '+2%',
+  },
+]
+
+const LEGACY_PROPERTY_FACTS = [
+  { label: 'property type', value: 'Single family' },
+  { label: 'bed', value: '3' },
+  { label: 'bath', value: '2.5' },
+  { label: 'sqft', value: '1,870' },
+  { label: 'sqft lot', value: '2,794' },
+  { label: 'year built', value: '2007' },
+]
+
+const LEGACY_JUMP_LINKS = ['Description', 'Brokerage link', 'Virtual tour', 'Open houses', 'Photos']
+
+const LEGACY_DESCRIPTION_TEXT =
+  "Beautiful, loved, well-maintained 4-bedroom 2.5 bathroom South Austin home on .23480 of an acre lot! Spacious open floor plan with numerous upgrades throughout the home. Hard surface flooring on the entire first floor. This home has an office with French doors and a first floor flex room that could be used as you choose. The spacious open living and dining area lead you to the large backyard with an extended patio/deck, an outdoor kitchen, and a fire pit. A large walk-in closet with custom built in dressers and shelves. New HVAC 2021! Great location in desirable South Austin, a short drive to downtown, and shopping."
+
+const LEGACY_OPEN_HOUSE_ROWS = [
+  { date: '05/28/2022', start: '11:00 AM', end: '5:00 PM' },
+  { date: '05/29/2022', start: '11:00 AM', end: '5:00 PM' },
+]
+
+function LegacyRadioRow({
+  name,
+  label,
+  checked,
+}: {
+  name: string
+  label: string
+  checked: boolean
+}) {
+  return (
+    <label className={hstack({ gap: '300', alignItems: 'center', cursor: 'pointer' })}>
+      <input type="radio" name={name} defaultChecked={checked} />
+      <span className={css({ fontSize: '[16px]', color: LEGACY_DARK })}>{label}</span>
+    </label>
+  )
+}
+
+function LegacyEditCard({
+  id,
+  title,
+  description,
+  children,
+}: {
+  id: string
+  title: string
+  description: string
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      id={id}
+      className={css({
+        bg: 'white',
+        borderRadius: '[16px]',
+        p: '800',
+      })}
+    >
+      <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
+        {title}
+      </h2>
+      <p className={css({ fontSize: '[14px]', lineHeight: '[20px]', color: LEGACY_GRAY, mt: '300', maxW: '700px' })}>
+        {description}
+      </p>
+      <div className={vstack({ alignItems: 'flex-start', gap: '400', mt: '600', w: '100%' })}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+const LEGACY_FONT_STACK = '"Rubik", -apple-system, Helvetica, Arial, sans-serif'
+const LEGACY_NAV_FONT_STACK = '"Roboto", -apple-system, Helvetica, Arial, sans-serif'
+
+function LegacyFontOverride() {
+  return (
+    <style>{`
+      [data-legacy-root], [data-legacy-root] * {
+        font-family: ${LEGACY_FONT_STACK} !important;
+      }
+      [data-legacy-root] [data-legacy-nav], [data-legacy-root] [data-legacy-nav] * {
+        font-family: ${LEGACY_NAV_FONT_STACK} !important;
+      }
+    `}</style>
+  )
+}
+
+function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      data-legacy-root
+      className={css({
+        position: 'fixed',
+        inset: '0',
+        zIndex: 'toast',
+        bg: LEGACY_BG,
+        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+      })}
+    >
+      <LegacyFontOverride />
+      {/* Header */}
+      <div
+        className={hstack({
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: '800',
+          py: '600',
+          bg: 'white',
+          borderBottomWidth: '100',
+          borderBottomStyle: 'solid',
+          borderColor: LEGACY_BORDER,
+          flexShrink: 0,
+        })}
+      >
+        <span className={css({ fontSize: '[20px]', fontWeight: '500', color: LEGACY_DARK })}>
+          Edit listing details
+        </span>
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className={css({
+            display: 'inline-flex',
+            border: 'none',
+            bg: 'transparent',
+            cursor: 'pointer',
+            color: LEGACY_DARK,
+          })}
+        >
+          <IconClose size={3} />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className={hstack({ alignItems: 'flex-start', gap: '900', flex: '1', px: '800', py: '700' })}>
+        {/* Jump to nav */}
+        <div className={vstack({ alignItems: 'flex-start', gap: '400', w: '160px', flexShrink: 0 })}>
+          <span className={css({ fontSize: '[16px]', fontWeight: '600', color: LEGACY_DARK })}>
+            Jump to:
+          </span>
+          {LEGACY_JUMP_LINKS.map((link) => (
+            <a
+              key={link}
+              href={`#legacy-edit-${link.toLowerCase().replace(/\s+/g, '-')}`}
+              className={css({
+                fontSize: '[16px]',
+                color: LEGACY_BLUE,
+                textDecoration: 'underline',
+                fontWeight: '500',
+              })}
+            >
+              {link}
+            </a>
+          ))}
+        </div>
+
+        {/* Content cards */}
+        <div className={vstack({ alignItems: 'stretch', gap: '600', flex: '1', maxW: '760px' })}>
+          <LegacyEditCard
+            id="legacy-edit-description"
+            title="Description"
+            description="Edits to this description will show up on this listing on realtor.com. Edits to property specs such as bed and bath counts can be done only through your MLS."
+          >
+            <LegacyRadioRow name="description-source" label="Use description from MLS" checked={false} />
+            <LegacyRadioRow name="description-source" label="Enter a custom description" checked />
+            <div className={vstack({ alignItems: 'flex-start', gap: '200', w: '100%' })}>
+              <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
+                Description
+              </span>
+              <textarea
+                defaultValue={LEGACY_DESCRIPTION_TEXT}
+                rows={7}
+                className={css({
+                  w: '100%',
+                  borderWidth: '100',
+                  borderStyle: 'solid',
+                  borderColor: LEGACY_INPUT_BORDER,
+                  borderRadius: '200',
+                  px: '400',
+                  py: '[15px]',
+                  fontSize: '[16px]',
+                  color: LEGACY_DARK,
+                  fontFamily: 'inherit',
+                  resize: 'vertical',
+                })}
+              />
+              <span className={css({ fontSize: '[12px]', fontWeight: '500', color: LEGACY_GRAY })}>
+                {LEGACY_DESCRIPTION_TEXT.length}/2500 characters
+              </span>
+            </div>
+          </LegacyEditCard>
+
+          <LegacyEditCard
+            id="legacy-edit-brokerage-link"
+            title="Brokerage link"
+            description={'This is a link to your brokerage firm’s website. It will appear in the "Brokered by" section of this listing on realtor.com.'}
+          >
+            <LegacyRadioRow name="brokerage-link-source" label="Use brokerage link from MLS" checked={false} />
+            <LegacyRadioRow name="brokerage-link-source" label="Enter supported custom link" checked />
+            <LegacyRadioRow name="brokerage-link-source" label="Don't show link on realtor.com®" checked={false} />
+            <div className={vstack({ alignItems: 'flex-start', gap: '200', w: '100%' })}>
+              <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
+                Brokerage URL
+              </span>
+              <input
+                type="text"
+                defaultValue="http://austinsouthwest.kwoffice.com"
+                className={css({
+                  w: '100%',
+                  borderWidth: '100',
+                  borderStyle: 'solid',
+                  borderColor: LEGACY_INPUT_BORDER,
+                  borderRadius: '200',
+                  px: '400',
+                  py: '[15px]',
+                  fontSize: '[16px]',
+                  color: LEGACY_DARK,
+                })}
+              />
+            </div>
+          </LegacyEditCard>
+
+          <LegacyEditCard
+            id="legacy-edit-virtual-tour"
+            title="Virtual tour"
+            description={'A link to a tour from Matterport, Asteroom, or CloudPano will appear as a "3D Tour" button on this listing on realtor.com®. A link to a video tour (YouTube or Vimeo) or virtual tour (personalized website) will appear as a "Virtual Tour" button.'}
+          >
+            <LegacyRadioRow name="tour-link-source" label="Use provided tour link from MLS" checked={false} />
+            <LegacyRadioRow name="tour-link-source" label="Enter supported custom link" checked />
+            <LegacyRadioRow name="tour-link-source" label="Don't show tour link on realtor.com®" checked={false} />
+            <div className={vstack({ alignItems: 'flex-start', gap: '200', w: '100%' })}>
+              <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
+                Tour URL
+              </span>
+              <input
+                type="text"
+                defaultValue="http://tour.kwarealty.com/123-Main-Street-Austin-TX-78701/"
+                className={css({
+                  w: '100%',
+                  borderWidth: '100',
+                  borderStyle: 'solid',
+                  borderColor: LEGACY_INPUT_BORDER,
+                  borderRadius: '200',
+                  px: '400',
+                  py: '[15px]',
+                  fontSize: '[16px]',
+                  color: LEGACY_DARK,
+                })}
+              />
+            </div>
+          </LegacyEditCard>
+
+          <LegacyEditCard
+            id="legacy-edit-open-houses"
+            title="Open houses"
+            description="Up to 4 upcoming open houses will appear on realtor.com®. Any more will be placed in a queue and added as older ones pass."
+          >
+            <div className={vstack({ alignItems: 'flex-start', gap: '100' })}>
+              <span className={css({ fontSize: '[16px]', fontWeight: '600', color: LEGACY_DARK })}>
+                Synced from MLS
+              </span>
+              <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>None</span>
+            </div>
+
+            {LEGACY_OPEN_HOUSE_ROWS.map((row, i) => (
+              <div key={i} className={hstack({ gap: '500', alignItems: 'flex-end' })}>
+                <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                  <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
+                    Date
+                  </span>
+                  <div
+                    className={hstack({
+                      gap: '300',
+                      alignItems: 'center',
+                      borderWidth: '100',
+                      borderStyle: 'solid',
+                      borderColor: LEGACY_INPUT_BORDER,
+                      borderRadius: '200',
+                      px: '400',
+                      py: '300',
+                    })}
+                  >
+                    <span className={css({ fontSize: '[16px]', color: LEGACY_DARK })}>{row.date}</span>
+                    <IconCalendar size={2} />
+                  </div>
+                </div>
+                <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                  <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
+                    Start time
+                  </span>
+                  <div
+                    className={hstack({
+                      gap: '300',
+                      alignItems: 'center',
+                      borderWidth: '100',
+                      borderStyle: 'solid',
+                      borderColor: LEGACY_INPUT_BORDER,
+                      borderRadius: '200',
+                      px: '400',
+                      py: '300',
+                    })}
+                  >
+                    <span className={css({ fontSize: '[16px]', color: LEGACY_DARK })}>{row.start}</span>
+                    <IconChevronDown size={2} />
+                  </div>
+                </div>
+                <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                  <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
+                    End time
+                  </span>
+                  <div
+                    className={hstack({
+                      gap: '300',
+                      alignItems: 'center',
+                      borderWidth: '100',
+                      borderStyle: 'solid',
+                      borderColor: LEGACY_INPUT_BORDER,
+                      borderRadius: '200',
+                      px: '400',
+                      py: '300',
+                    })}
+                  >
+                    <span className={css({ fontSize: '[16px]', color: LEGACY_DARK })}>{row.end}</span>
+                    <IconChevronDown size={2} />
+                  </div>
+                </div>
+                <span
+                  className={css({
+                    fontSize: '[16px]',
+                    fontWeight: '500',
+                    color: LEGACY_BLUE,
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    pb: '300',
+                  })}
+                >
+                  Remove
+                </span>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              className={css({
+                borderWidth: '200',
+                borderStyle: 'solid',
+                borderColor: LEGACY_BLUE,
+                color: LEGACY_BLUE,
+                bg: 'white',
+                fontWeight: '500',
+                fontSize: '[14px]',
+                borderRadius: '200',
+                px: '600',
+                py: '300',
+                cursor: 'pointer',
+              })}
+            >
+              + Add open house
+            </button>
+          </LegacyEditCard>
+
+          <div
+            id="legacy-edit-photos"
+            className={css({
+              bg: 'white',
+              borderRadius: '[16px]',
+              p: '800',
+            })}
+          >
+            <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
+              Photos (13)
+            </h2>
+            <div className={hstack({ gap: '300', alignItems: 'center', mt: '500' })}>
+              <IconPhotos size={3} />
+              <span className={css({ fontSize: '[20px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                Current photo source: Team upload
+              </span>
+            </div>
+            <div
+              className={hstack({
+                gap: '300',
+                alignItems: 'flex-start',
+                bg: LEGACY_WARNING_BG,
+                borderRadius: '200',
+                p: '500',
+                mt: '500',
+              })}
+            >
+              <IconWarningColorFilled size={3} />
+              <div className={vstack({ alignItems: 'flex-start', gap: '100' })}>
+                <span className={css({ fontSize: '[16px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Changes to your photos have been made on your behalf
+                </span>
+                <span className={css({ fontSize: '[14px]', color: LEGACY_DARK })}>
+                  Your team has updated your listing with enhanced media for Spotlight Listings.
+                  Any changes must be made by your team.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div
+        className={hstack({
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: '800',
+          py: '600',
+          bg: 'white',
+          borderTopWidth: '100',
+          borderTopStyle: 'solid',
+          borderColor: LEGACY_BORDER,
+          flexShrink: 0,
+        })}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className={css({
+            border: 'none',
+            bg: 'transparent',
+            color: LEGACY_BLUE,
+            fontWeight: '500',
+            fontSize: '[16px]',
+            textDecoration: 'underline',
+            cursor: 'pointer',
+          })}
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className={css({
+            border: 'none',
+            bg: LEGACY_RED,
+            color: 'white',
+            fontWeight: '700',
+            fontSize: '[16px]',
+            borderRadius: '200',
+            px: '600',
+            py: '500',
+            cursor: 'pointer',
+          })}
+        >
+          Publish changes
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
+  const [showEditModal, setShowEditModal] = useState(false)
+
+  return (
+    <div data-legacy-root className={css({ minH: '100dvh', bg: LEGACY_BG })}>
+      <LegacyFontOverride />
+      {showEditModal && <LegacyEditListingModal onClose={() => setShowEditModal(false)} />}
+      {/* Utility bar */}
+      <div
+        data-legacy-nav
+        className={css({
+          bg: '[rgba(0,0,0,0.8)]',
+          color: 'white',
+          opacity: '[0.8]',
+          fontSize: '[12px]',
+          fontWeight: '300',
+          px: '700',
+          py: '300',
+        })}
+      >
+        realtor.com® home page
+      </div>
+      <div className={css({ h: '4px', bg: LEGACY_STRIPE })} />
+
+      {/* Header */}
+      <div
+        data-legacy-nav
+        className={hstack({
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          px: '700',
+          py: '500',
+          bg: 'white',
+          borderBottomWidth: '100',
+          borderBottomStyle: 'solid',
+          borderColor: '[rgba(0,0,0,0.2)]',
+        })}
+      >
+        <div className={hstack({ gap: '300', alignItems: 'center' })}>
+          <LogoBrand className={css({ h: '22px', display: 'block' })} />
+          <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>for Professionals</span>
+        </div>
+        <div className={hstack({ gap: '300', alignItems: 'center' })}>
+          <div className={vstack({ alignItems: 'flex-end', gap: '0' })}>
+            <span className={css({ fontSize: '[12px]', fontWeight: '300', color: '[black]', opacity: '[0.9]' })}>
+              Welcome
+            </span>
+            <span className={css({ fontSize: '[14px]', fontWeight: '400', color: '[black]', opacity: '[0.9]' })}>
+              Agent
+            </span>
+          </div>
+          <div
+            className={css({
+              w: '40px',
+              h: '40px',
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: '[rgba(0,0,0,0.1)]',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '[rgba(0,0,0,0.4)]',
+            })}
+          >
+            <IconProfile size={3} />
+          </div>
+        </div>
+      </div>
+
+      <div className={hstack({ alignItems: 'flex-start', gap: '0' })}>
+        {/* Sidebar */}
+        <div
+          data-legacy-nav
+          className={css({
+            w: '256px',
+            flexShrink: 0,
+            bg: 'white',
+            borderRightWidth: '100',
+            borderRightStyle: 'solid',
+            borderColor: LEGACY_BORDER,
+            py: '600',
+            minH: 'calc(100dvh - 76px)',
+          })}
+        >
+          {LEGACY_NAV_ITEMS.map((item) => (
+            <div
+              key={item}
+              className={css({
+                px: '700',
+                py: '400',
+                fontSize: '[16px]',
+                fontWeight: item === 'Listings' ? '600' : '400',
+                color: item === 'Listings' ? LEGACY_NAV_ACTIVE : '[black]',
+                opacity: '[0.9]',
+              })}
+            >
+              {item}
+            </div>
+          ))}
+          <div className={css({ h: '1px', bg: '[rgba(0,0,0,0.1)]', my: '400' })} />
+          {LEGACY_NAV_DROPDOWNS.map((item) => (
+            <div
+              key={item}
+              className={hstack({
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                px: '700',
+                py: '400',
+              })}
+            >
+              <span className={css({ fontSize: '[16px]', color: '[black]', opacity: '[0.9]' })}>
+                {item}
+              </span>
+              <IconChevronDown size={2} />
+            </div>
+          ))}
+        </div>
+
+        {/* Main content */}
+        <div className={css({ flex: '1', px: '900', py: '700' })}>
+          {/* Back link + actions */}
+          <div className={hstack({ justifyContent: 'space-between', alignItems: 'center', mb: '700' })}>
+            <button
+              type="button"
+              onClick={onBack}
+              className={hstack({
+                gap: '200',
+                alignItems: 'center',
+                color: LEGACY_BREADCRUMB,
+                cursor: 'pointer',
+                border: 'none',
+                bg: 'transparent',
+              })}
+            >
+              <IconArrowLeft size={3} />
+              <span className={css({ fontSize: '[18px]', fontWeight: '500', letterSpacing: '[0.18px]' })}>
+                All Listings
+              </span>
+            </button>
+            <div className={hstack({ gap: '400' })}>
+              <button
+                type="button"
+                className={css({
+                  borderWidth: '200',
+                  borderStyle: 'solid',
+                  borderColor: LEGACY_BLUE,
+                  color: LEGACY_BLUE,
+                  bg: 'white',
+                  fontWeight: '500',
+                  fontSize: '[14px]',
+                  borderRadius: '200',
+                  px: '600',
+                  py: '400',
+                  cursor: 'pointer',
+                })}
+              >
+                Edit listing
+              </button>
+              <button
+                type="button"
+                className={css({
+                  borderWidth: '200',
+                  borderStyle: 'solid',
+                  borderColor: LEGACY_BLUE,
+                  color: LEGACY_BLUE,
+                  bg: 'white',
+                  fontWeight: '500',
+                  fontSize: '[14px]',
+                  borderRadius: '200',
+                  px: '600',
+                  py: '400',
+                  cursor: 'pointer',
+                })}
+              >
+                Share report
+              </button>
+            </div>
+          </div>
+
+          {/* Property header */}
+          <div className={hstack({ gap: '500', alignItems: 'flex-start', mb: '700' })}>
+            <div className={css({ position: 'relative', flexShrink: 0 })}>
+              <img
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=240&h=180&fit=crop"
+                alt=""
+                className={css({ w: '190px', h: '126px', borderRadius: '200', objectFit: 'cover', display: 'block' })}
+              />
+              <div
+                className={hstack({
+                  gap: '100',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  bottom: '200',
+                  right: '200',
+                  bg: '[rgba(51,51,51,0.75)]',
+                  color: 'white',
+                  borderRadius: '[100px]',
+                  px: '300',
+                  py: '100',
+                })}
+              >
+                <IconCamera size={2} />
+                <span className={css({ fontSize: '[14px]', fontWeight: '500' })}>10</span>
+              </div>
+            </div>
+            <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+              <h1
+                className={css({
+                  fontSize: '[28px]',
+                  lineHeight: '[36px]',
+                  fontWeight: '600',
+                  color: LEGACY_DARK,
+                })}
+              >
+                123 Main Street, Austin, TX 78731
+              </h1>
+              <div className={hstack({ gap: '400', alignItems: 'center' })}>
+                <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>
+                  BrightMLS 12345678
+                </span>
+                <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>$565,000</span>
+                <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>
+                  Listed: Oct 1, 2022
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div
+            className={hstack({
+              gap: '700',
+              borderBottomWidth: '100',
+              borderBottomStyle: 'solid',
+              borderColor: LEGACY_BORDER,
+              mb: '700',
+            })}
+          >
+            {LEGACY_TABS.map((tab) => {
+              const active = tab === 'Listing details'
+              return (
+                <span
+                  key={tab}
+                  className={css({
+                    fontSize: '[16px]',
+                    fontWeight: active ? '500' : '400',
+                    color: active ? LEGACY_DARK : LEGACY_GRAY,
+                    pb: '400',
+                    borderBottomWidth: active ? '[4px]' : '0',
+                    borderBottomStyle: 'solid',
+                    borderColor: LEGACY_DARK,
+                  })}
+                >
+                  {tab}
+                </span>
+              )
+            })}
+          </div>
+
+          {/* Listing completeness card */}
+          <div
+            className={css({
+              bg: 'white',
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: LEGACY_BORDER,
+              borderRadius: '[16px]',
+              p: '800',
+              mb: '600',
+            })}
+          >
+            <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
+              Listing completeness
+            </h2>
+            <p className={css({ fontSize: '[14px]', lineHeight: '[18px]', color: LEGACY_GRAY, mt: '300' })}>
+              Complete the recommended actions to help increase the attention your listing gets
+              from potenitial buyers.{' '}
+              <span className={css({ color: LEGACY_BLUE, textDecoration: 'underline' })}>
+                How does this work?
+              </span>
+            </p>
+
+            <p
+              className={css({
+                fontSize: '[16px]',
+                lineHeight: '[24px]',
+                fontWeight: '600',
+                color: LEGACY_DARK,
+                mt: '600',
+              })}
+            >
+              88% complete (8 of 11)
+            </p>
+            <div
+              className={css({
+                h: '18px',
+                bg: LEGACY_BORDER,
+                borderRadius: '[18px]',
+                overflow: 'hidden',
+                mt: '300',
+              })}
+            >
+              <div className={css({ h: '100%', w: '[83.33%]', bg: '[#2bb673]' })} />
+            </div>
+
+            <div
+              className={hstack({
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mt: '700',
+                mb: '400',
+              })}
+            >
+              <div className={hstack({ gap: '200', alignItems: 'center' })}>
+                <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Recommended (3)
+                </span>
+                <IconChevronUp size={2} />
+              </div>
+              <span className={css({ fontSize: '[14px]', color: LEGACY_GRAY })}>
+                Any changes made in MLS will take ~15 min to appear
+              </span>
+            </div>
+
+            <div className={vstack({ alignItems: 'stretch', gap: '400' })}>
+              {LEGACY_RECOMMENDATIONS.map((rec) => (
+                <div
+                  key={rec.title}
+                  className={css({
+                    borderWidth: '100',
+                    borderStyle: 'solid',
+                    borderColor: LEGACY_INPUT_BORDER,
+                    borderRadius: '200',
+                    p: '500',
+                  })}
+                >
+                  <div className={hstack({ justifyContent: 'space-between', alignItems: 'flex-start' })}>
+                    <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '500', color: LEGACY_DARK })}>
+                      {rec.title}
+                    </span>
+                    <div className={hstack({ gap: '400', alignItems: 'center' })}>
+                      {rec.actions.map((action) => (
+                        <span
+                          key={action}
+                          className={css({
+                            fontSize: '[16px]',
+                            lineHeight: '[24px]',
+                            fontWeight: '500',
+                            color: LEGACY_BLUE,
+                            textDecoration: 'underline',
+                            whiteSpace: 'nowrap',
+                          })}
+                        >
+                          {action}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={hstack({ justifyContent: 'space-between', alignItems: 'flex-end', mt: '200' })}>
+                    <span className={css({ fontSize: '[14px]', color: LEGACY_GRAY })}>
+                      {rec.description}
+                    </span>
+                    <span className={css({ fontSize: '[14px]', color: LEGACY_GRAY, whiteSpace: 'nowrap' })}>
+                      {rec.lift}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className={hstack({ gap: '200', alignItems: 'center', mt: '600' })}>
+              <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                Completed (8)
+              </span>
+              <IconChevronDown size={2} />
+            </div>
+          </div>
+
+          {/* Listing details and photos card */}
+          <div
+            className={css({
+              bg: 'white',
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: LEGACY_BORDER,
+              borderRadius: '[16px]',
+              p: '800',
+            })}
+          >
+            <div className={hstack({ justifyContent: 'space-between', alignItems: 'flex-start' })}>
+              <div>
+                <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Listing details and photos
+                </h2>
+                <p className={css({ fontSize: '[14px]', lineHeight: '[20px]', color: LEGACY_GRAY, mt: '300', maxW: '600px' })}>
+                  This information is pulled in automatically from your MLS and any edits will
+                  show up only on your listing on our site.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEditModal(true)}
+                className={css({
+                  borderWidth: '200',
+                  borderStyle: 'solid',
+                  borderColor: LEGACY_BLUE,
+                  color: LEGACY_BLUE,
+                  bg: 'white',
+                  fontWeight: '500',
+                  fontSize: '[14px]',
+                  borderRadius: '200',
+                  px: '600',
+                  py: '300',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                })}
+              >
+                Edit
+              </button>
+            </div>
+
+            {/* Description */}
+            <div className={vstack({ alignItems: 'flex-start', gap: '300', mt: '700' })}>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <IconClipboard size={3} />
+                <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Description
+                </span>
+              </div>
+              <p className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_GRAY, maxW: '900px' })}>
+                Beautiful, loved, well-maintained 3-bedroom 2.5 bathroom South Austin home on
+                .23480 of an acre lot! Spacious open floor plan with numerous upgrades...{' '}
+                <span className={css({ color: LEGACY_BLUE, textDecoration: 'underline' })}>
+                  Show more
+                </span>
+              </p>
+              <div className={hstack({ gap: '700' })}>
+                {LEGACY_PROPERTY_FACTS.map((fact) => (
+                  <div key={fact.label} className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+                    <span className={css({ fontSize: '[16px]', lineHeight: '[22px]', fontWeight: '500', color: LEGACY_DARK })}>
+                      {fact.value}
+                    </span>
+                    <span className={css({ fontSize: '[16px]', lineHeight: '[22px]', color: LEGACY_GRAY })}>
+                      {fact.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Brokerage link */}
+            <div className={vstack({ alignItems: 'flex-start', gap: '300', mt: '700' })}>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <IconLink size={3} />
+                <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Brokerage link
+                </span>
+              </div>
+              <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_BLUE, textDecoration: 'underline' })}>
+                http://austinsouthwest.kwoffice.com
+              </span>
+            </div>
+
+            {/* Tour */}
+            <div className={vstack({ alignItems: 'flex-start', gap: '300', mt: '700' })}>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <IconPlay size={3} />
+                <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  3D, Video, or Virtual Tour
+                </span>
+              </div>
+              <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_BLUE, textDecoration: 'underline' })}>
+                http://tour.kwarealty.com/123-Main-Street-Austin-YX-78701/
+              </span>
+            </div>
+
+            {/* Open houses */}
+            <div className={vstack({ alignItems: 'flex-start', gap: '300', mt: '700' })}>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <IconOpenHouse size={3} />
+                <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Open houses (2)
+                </span>
+              </div>
+              <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_GRAY })}>
+                Saturday, Oct 15, 2022  11am-5pm
+              </span>
+              <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_GRAY })}>
+                Sunday, Oct 16, 2022  11am-5pm
+              </span>
+            </div>
+
+            {/* Photos */}
+            <div className={vstack({ alignItems: 'flex-start', gap: '300', mt: '700' })}>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <IconPhotos size={3} />
+                <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
+                  Photos (10)
+                </span>
+              </div>
+              <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_GRAY })}>
+                Current photo source: Team upload
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EnhancedMediaEmailPreview() {
+  const [showListingDetail, setShowListingDetail] = useState(false)
+
+  if (showListingDetail) {
+    return <LegacyListingDetailPage onBack={() => setShowListingDetail(false)} />
+  }
+
+  return (
+    <div
+      className={css({
+        h: '100dvh',
+        w: '100%',
+        bg: 'bg.base',
+        display: 'flex',
+        flexDirection: 'column',
+      })}
+    >
+      <div
+        className={css({
+          flex: '1',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        })}
+      >
+        {/* Inbox toolbar */}
+        <div
+          className={hstack({
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            px: '600',
+            py: '400',
+            borderBottomWidth: '100',
+            borderBottomStyle: 'solid',
+            borderColor: 'border.base',
+            flexShrink: 0,
+          })}
+        >
+          <span className={css({ textStyle: 'headingSm', color: 'text.base' })}>Inbox</span>
+          <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+            user.name@email.com
+          </span>
+        </div>
+
+        <div className={hstack({ alignItems: 'stretch', flex: '1', overflow: 'hidden' })}>
+          {/* Message list */}
+          <div
+            className={css({
+              w: '320px',
+              flexShrink: 0,
+              overflowY: 'auto',
+              borderRightWidth: '100',
+              borderRightStyle: 'solid',
+              borderColor: 'border.base',
+            })}
+          >
+            {INBOX_MESSAGES.map((msg) => {
+              const active = msg.id === 'enhanced-media'
+              return (
+                <div
+                  key={msg.id}
+                  className={css({
+                    px: '500',
+                    py: '400',
+                    borderBottomWidth: '100',
+                    borderBottomStyle: 'solid',
+                    borderColor: 'border.base',
+                    bg: active ? 'bg.alternate' : 'bg.base',
+                  })}
+                >
+                  <div className={hstack({ justifyContent: 'space-between', alignItems: 'center' })}>
+                    <span
+                      className={css({
+                        textStyle: 'bodySm',
+                        fontWeight: active ? 'bold' : 'medium',
+                        color: 'text.base',
+                      })}
+                    >
+                      {msg.sender}
+                    </span>
+                    <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+                      {msg.time}
+                    </span>
+                  </div>
+                  <p
+                    className={css({
+                      textStyle: 'bodySm',
+                      fontWeight: active ? 'medium' : 'normal',
+                      color: 'text.base',
+                      mt: '100',
+                    })}
+                  >
+                    {msg.subject}
+                  </p>
+                  <p
+                    className={css({
+                      textStyle: 'caption',
+                      color: 'text.alternate',
+                      mt: '100',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                    })}
+                  >
+                    {msg.snippet}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Reading pane */}
+          <div className={css({ flex: '1', overflowY: 'auto' })}>
+            {/* Message header */}
+            <div
+              className={vstack({
+                alignItems: 'flex-start',
+                gap: '300',
+                px: '700',
+                py: '600',
+                borderBottomWidth: '100',
+                borderBottomStyle: 'solid',
+                borderColor: 'border.base',
+              })}
+            >
+              <h2 className={css({ textStyle: 'headingSm', color: 'text.base' })}>
+                Your listing now has enhanced media
+              </h2>
+              <div className={hstack({ gap: '300', alignItems: 'center' })}>
+                <Avatar size="xs" initials="RP" />
+                <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
+                  <span
+                    className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base' })}
+                  >
+                    realtor.com PRO
+                  </span>
+                  <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+                    to user.name@email.com
+                  </span>
+                </div>
+                <span
+                  className={css({ textStyle: 'caption', color: 'text.alternate', ml: 'auto' })}
+                >
+                  9:41 AM
+                </span>
+              </div>
+            </div>
+
+            {/* Email content — clicking anywhere opens the listing detail page */}
+            <div
+              onClick={() => setShowListingDetail(true)}
+              className={css({ cursor: 'pointer' })}
+            >
+            {/* Email body — constrained to the original design width, centered in the pane */}
+            <div className={vstack({ alignItems: 'center', w: '100%' })}>
+            <div className={css({ w: '100%', maxW: '600px' })}>
+            <div className={vstack({ alignItems: 'center', gap: '700', py: '1400' })}>
+          <LogoRealtorProDefault className={css({ h: '32px', display: 'block' })} />
+
+          <div className={vstack({ alignItems: 'flex-start', gap: '500', w: '100%' })}>
+            <h1
+              className={css({
+                textStyle: 'headingLg',
+                fontWeight: 'bold',
+                color: 'text.base',
+              })}
+            >
+              Enhanced media has been added to your listing
+            </h1>
+
+            <div className={vstack({ alignItems: 'flex-start', gap: '400' })}>
+              <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>[Agent name],</p>
+              <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
+                Your team has added enhanced media to [Listing address]. Buyers will now see
+                these photos on the listing.
+              </p>
+              <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
+                Since your team manages this listing's media, any future photo changes need to
+                go through them directly.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className={css({
+                w: '100%',
+                bg: 'status.error',
+                color: 'text.inverse',
+                textStyle: 'bodyMd',
+                fontWeight: 'bold',
+                borderRadius: '500',
+                py: '500',
+                textAlign: 'center',
+                cursor: 'pointer',
+                border: 'none',
+              })}
+            >
+              View your listing
+            </button>
+          </div>
+        </div>
+            </div>
+            </div>
+
+        {/* Footer — full-bleed background, content constrained to the design width */}
+        <div
+          className={vstack({
+            alignItems: 'center',
+            gap: '500',
+            bg: 'bg.inverse',
+            color: 'text.inverse',
+            w: '100%',
+            px: '700',
+            py: '900',
+          })}
+        >
+          <div className={vstack({ alignItems: 'center', gap: '500', w: '100%', maxW: '600px' })}>
+          <LogoBrandWhite className={css({ h: '24px', display: 'block' })} />
+          <span className={css({ textStyle: 'bodySm', fontWeight: 'bold' })}>
+            #1 site real estate professionals trust
+          </span>
+
+          <div className={vstack({ alignItems: 'center', gap: '300', mt: '400' })}>
+            <span className={css({ textStyle: 'bodySm' })}>901 E 6th St, Austin, TX 78702</span>
+            <div className={hstack({ gap: '300' })}>
+              <span className={css({ textStyle: 'bodySm', textDecoration: 'underline' })}>
+                Terms of Use
+              </span>
+              <span className={css({ textStyle: 'bodySm' })}>|</span>
+              <span className={css({ textStyle: 'bodySm', textDecoration: 'underline' })}>
+                Privacy
+              </span>
+              <span className={css({ textStyle: 'bodySm' })}>|</span>
+              <span className={css({ textStyle: 'bodySm', textDecoration: 'underline' })}>
+                Equal Housing
+              </span>
+            </div>
+          </div>
+
+          <p
+            className={css({
+              textStyle: 'caption',
+              fontStyle: 'italic',
+              textAlign: 'center',
+              mt: '400',
+            })}
+          >
+            To unsubscribe from transactional emails, you must cancel your subscription.
+          </p>
+
+          <p className={css({ textStyle: 'caption', textAlign: 'center' })}>
+            Move Sales, Inc. does not use any National Association of REALTORS dues to operate
+            and maintain Realtor.com©.
+          </p>
+
+          <p className={css({ textStyle: 'caption', textAlign: 'center' })}>
+            REALTOR® and Realtor.com® are trademarks of the NATIONAL ASSOCIATION OF REALTORS®
+            <br />
+            and are used with its permission. © 2025 Move, Inc. All rights reserved.
+          </p>
+        </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Shell ──────────────────────────────────────────────────────────────────────
 
 type View =
@@ -1693,6 +3115,8 @@ export default function Shell() {
   const [toastListingId, setToastListingId] = useState<string | null>(null)
   const [showSaveConsent, setShowSaveConsent] = useState(false)
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
+  const [experience, setExperience] = useState<Experience>('team')
+  const [navPanelOpen, setNavPanelOpen] = useState(false)
 
   const selectedListing =
     view.page === 'detail' || view.page === 'photo-upload'
@@ -1718,6 +3142,36 @@ export default function Shell() {
   }
 
   const showSidebar = view.page !== 'photo-upload'
+
+  const handleSelectExperience = (next: Experience) => {
+    setExperience(next)
+    if (next === 'team') setView({ page: 'list' })
+    setNavPanelOpen(false)
+  }
+
+  if (experience !== 'team') {
+    return (
+      <div className={css({ minW: '1280px', minH: '100dvh', bg: 'bg.base' })}>
+        {experience === 'agent' ? (
+          <EnhancedMediaEmailPreview />
+        ) : (
+          <>
+            <TopBar />
+            <PlaceholderExperience
+              label={EXPERIENCES.find((exp) => exp.id === experience)?.label ?? ''}
+            />
+          </>
+        )}
+        <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
+        <ExperienceNavPanel
+          open={navPanelOpen}
+          experience={experience}
+          onClose={() => setNavPanelOpen(false)}
+          onSelect={handleSelectExperience}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className={css({ minW: '1280px', minH: '100dvh', bg: 'bg.base' })}>
@@ -1805,6 +3259,14 @@ export default function Shell() {
         onClose={() => setToastListingId(null)}
         status="success"
         title="Your listing has been promoted and will begin later today."
+      />
+
+      <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
+      <ExperienceNavPanel
+        open={navPanelOpen}
+        experience={experience}
+        onClose={() => setNavPanelOpen(false)}
+        onSelect={handleSelectExperience}
       />
     </div>
   )
