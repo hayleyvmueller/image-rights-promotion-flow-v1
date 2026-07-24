@@ -1323,11 +1323,6 @@ function PhotoThumbnail({
 }) {
   return (
     <div
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = 'move'
-        onDragStart(index)
-      }}
       onDragOver={(e) => {
         e.preventDefault()
         onDragOver(index)
@@ -1336,7 +1331,6 @@ function PhotoThumbnail({
         e.preventDefault()
         onDrop(index)
       }}
-      onDragEnd={onDragEnd}
       className={css({
         position: 'relative',
         w: '190px',
@@ -1345,7 +1339,6 @@ function PhotoThumbnail({
         overflow: 'hidden',
         bg: 'bg.alternate',
         flexShrink: 0,
-        cursor: 'grab',
         opacity: isDragging ? '0.4' : '1',
         outlineWidth: isDropTarget ? '3px' : '0px',
         outlineStyle: 'solid',
@@ -1361,6 +1354,12 @@ function PhotoThumbnail({
         className={css({ w: '100%', h: '100%', objectFit: 'cover', display: 'block' })}
       />
       <div
+        draggable
+        onDragStart={(e) => {
+          e.dataTransfer.effectAllowed = 'move'
+          onDragStart(index)
+        }}
+        onDragEnd={onDragEnd}
         className={css({
           position: 'absolute',
           top: '200',

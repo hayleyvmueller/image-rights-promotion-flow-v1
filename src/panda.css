@@ -1639,10 +1639,6 @@
     aspect-ratio: 3 / 2;
 }
 
-  .cursor_grab {
-    cursor: grab;
-}
-
   .outline-style_solid {
     outline-style: solid;
 }
@@ -1653,6 +1649,10 @@
 
   .ring-o_2px {
     outline-offset: 2px;
+}
+
+  .cursor_grab {
+    cursor: grab;
 }
 
   .bx-sh_dialog {
