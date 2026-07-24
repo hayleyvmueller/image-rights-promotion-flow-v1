@@ -55,7 +55,7 @@ import {
   IconOpenHouse,
   IconPhotos,
   IconClose,
-  IconWarningColorFilled,
+  IconInfo,
   IconProfile,
   IconRefreshCw,
   LogoRealtorProDefault,
@@ -1956,7 +1956,6 @@ const LEGACY_INPUT_BORDER = '[#b9bfc9]'
 const LEGACY_NAV_ACTIVE = '[#364bc4]'
 const LEGACY_BREADCRUMB = '[#48566c]'
 const LEGACY_RED = '[#d92228]'
-const LEGACY_WARNING_BG = '[#ffefcc]'
 const LEGACY_STRIPE = '[#6677d0]'
 
 const LEGACY_NAV_ITEMS = ['Home', 'Contacts', 'Tasks', 'Listings', 'Listing presentations']
@@ -2048,6 +2047,31 @@ function LegacyEditCard({
       </p>
       <div className={vstack({ alignItems: 'flex-start', gap: '400', mt: '600', w: '100%' })}>
         {children}
+      </div>
+    </div>
+  )
+}
+
+function LegacyPhotoBanner() {
+  return (
+    <div
+      className={hstack({
+        gap: '300',
+        alignItems: 'flex-start',
+        bg: LEGACY_BG,
+        borderRadius: '200',
+        p: '500',
+      })}
+    >
+      <IconInfo size={3} />
+      <div className={vstack({ alignItems: 'flex-start', gap: '300' })}>
+        <span className={css({ fontSize: '[16px]', fontWeight: '700', color: LEGACY_DARK })}>
+          Changes to your photos have been made on your behalf
+        </span>
+        <span className={css({ fontSize: '[16px]', fontWeight: '400', color: LEGACY_DARK })}>
+          Your team has updated your listing with enhanced media for Spotlight Listings. Any
+          changes must be made by your team.
+        </span>
       </div>
     </div>
   )
@@ -2362,26 +2386,8 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
                 Current photo source: Team upload
               </span>
             </div>
-            <div
-              className={hstack({
-                gap: '300',
-                alignItems: 'flex-start',
-                bg: LEGACY_WARNING_BG,
-                borderRadius: '200',
-                p: '500',
-                mt: '500',
-              })}
-            >
-              <IconWarningColorFilled size={3} />
-              <div className={vstack({ alignItems: 'flex-start', gap: '100' })}>
-                <span className={css({ fontSize: '[16px]', fontWeight: '600', color: LEGACY_DARK })}>
-                  Changes to your photos have been made on your behalf
-                </span>
-                <span className={css({ fontSize: '[14px]', color: LEGACY_DARK })}>
-                  Your team has updated your listing with enhanced media for Spotlight Listings.
-                  Any changes must be made by your team.
-                </span>
-              </div>
+            <div className={css({ mt: '500' })}>
+              <LegacyPhotoBanner />
             </div>
           </div>
         </div>
@@ -2941,6 +2947,9 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
               <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_GRAY })}>
                 Current photo source: Team upload
               </span>
+              <div className={css({ w: '100%', mt: '300' })}>
+                <LegacyPhotoBanner />
+              </div>
             </div>
           </div>
         </div>
