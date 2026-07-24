@@ -56,6 +56,7 @@ import {
   IconClose,
   IconWarningColorFilled,
   IconProfile,
+  IconRefreshCw,
   LogoRealtorProDefault,
   LogoBrandWhite,
   LogoBrand,
@@ -381,8 +382,15 @@ function TopBar() {
 
 // ─── Sidebar ────────────────────────────────────────────────────────────────────
 
-function Sidebar() {
-  const [activePage, setActivePage] = useState('all-listings')
+type SidebarPage = 'dashboard' | 'all-listings' | 'spotlight-listings'
+
+function Sidebar({
+  activePage,
+  onNavigate,
+}: {
+  activePage: SidebarPage
+  onNavigate: (page: SidebarPage) => void
+}) {
   const [listingsOpen, setListingsOpen] = useState(true)
 
   return (
@@ -408,7 +416,7 @@ function Sidebar() {
           startIcon={<IconHome size={3} />}
           linkText="Dashboard"
           active={activePage === 'dashboard'}
-          onLinkClick={() => setActivePage('dashboard')}
+          onLinkClick={() => onNavigate('dashboard')}
         />
 
         <SideNavigationGroup
@@ -462,13 +470,13 @@ function Sidebar() {
             id="all-listings"
             linkText="All listings"
             active={activePage === 'all-listings'}
-            onLinkClick={() => setActivePage('all-listings')}
+            onLinkClick={() => onNavigate('all-listings')}
           />
           <SideNavigationItem
             id="spotlight-listings"
             linkText="Spotlight listings"
             active={activePage === 'spotlight-listings'}
-            onLinkClick={() => setActivePage('spotlight-listings')}
+            onLinkClick={() => onNavigate('spotlight-listings')}
           />
         </SideNavigationGroup>
       </SideNavigation>
@@ -1739,11 +1747,13 @@ function ExperienceNavPanel({
   experience,
   onClose,
   onSelect,
+  onReset,
 }: {
   open: boolean
   experience: Experience
   onClose: () => void
   onSelect: (experience: Experience) => void
+  onReset: () => void
 }) {
   return (
     <Modal open={open} onClose={onClose} layout="drawer" drawerPosition="left" size="sm">
@@ -1761,6 +1771,14 @@ function ExperienceNavPanel({
               {exp.label}
             </ListBox.Item>
           ))}
+          <ListBox.Divider />
+          <ListBox.Item
+            value="reset"
+            startAddon={<IconRefreshCw size={3} />}
+            onClick={onReset}
+          >
+            Reset prototype
+          </ListBox.Item>
         </ListBox>
       </Modal.Body>
     </Modal>
@@ -3117,6 +3135,24 @@ export default function Shell() {
   const [pendingPhotos, setPendingPhotos] = useState<string[]>([])
   const [experience, setExperience] = useState<Experience>('team')
   const [navPanelOpen, setNavPanelOpen] = useState(false)
+  const [sidebarPage, setSidebarPage] = useState<SidebarPage>('all-listings')
+
+  const handleSidebarNavigate = (page: SidebarPage) => {
+    setSidebarPage(page)
+    if (page === 'all-listings') setView({ page: 'list' })
+  }
+
+  const handleResetPrototype = () => {
+    setListings(LISTINGS)
+    setView({ page: 'list' })
+    setPromoteTargets(null)
+    setToastListingId(null)
+    setShowSaveConsent(false)
+    setPendingPhotos([])
+    setSidebarPage('all-listings')
+    setExperience('team')
+    setNavPanelOpen(false)
+  }
 
   const selectedListing =
     view.page === 'detail' || view.page === 'photo-upload'
@@ -3168,6 +3204,7 @@ export default function Shell() {
           experience={experience}
           onClose={() => setNavPanelOpen(false)}
           onSelect={handleSelectExperience}
+          onReset={handleResetPrototype}
         />
       </div>
     )
@@ -3176,7 +3213,12 @@ export default function Shell() {
   return (
     <div className={css({ minW: '1280px', minH: '100dvh', bg: 'bg.base' })}>
       <TopBar />
-      {showSidebar && <Sidebar />}
+      {showSidebar && (
+        <Sidebar
+          activePage={view.page === 'list' ? 'all-listings' : sidebarPage}
+          onNavigate={handleSidebarNavigate}
+        />
+      )}
       <main
         className={css({ pt: HEADER_HEIGHT })}
         style={{ marginLeft: showSidebar ? SIDEBAR_WIDTH : '0' }}
@@ -3267,6 +3309,7 @@ export default function Shell() {
         experience={experience}
         onClose={() => setNavPanelOpen(false)}
         onSelect={handleSelectExperience}
+        onReset={handleResetPrototype}
       />
     </div>
   )
