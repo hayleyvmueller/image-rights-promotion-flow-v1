@@ -1378,7 +1378,7 @@ function PhotoThumbnail({
         <IconDrag size={2} />
       </div>
       <div className={css({ position: 'absolute', bottom: '200', right: '200' })}>
-        <Menu width={180} placement="bottom-end">
+        <Menu width={180} placement="bottom-end" disableAutoFlip>
           <Menu.Toggle>
             <button
               type="button"
