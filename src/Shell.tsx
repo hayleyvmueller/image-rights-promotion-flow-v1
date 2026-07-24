@@ -38,6 +38,7 @@ import {
   IconMoreFilled,
   IconEdit,
   IconDelete,
+  IconDrag,
   IconCalendar,
   IconBarChart,
   IconOpen,
@@ -1299,9 +1300,43 @@ function ListingDetailScreen({
 
 // ─── Photo thumbnail ────────────────────────────────────────────────────────────
 
-function PhotoThumbnail({ src, onDelete }: { src: string; onDelete: () => void }) {
+function PhotoThumbnail({
+  src,
+  onDelete,
+  index,
+  isDragging,
+  isDropTarget,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+}: {
+  src: string
+  onDelete: () => void
+  index: number
+  isDragging: boolean
+  isDropTarget: boolean
+  onDragStart: (index: number) => void
+  onDragOver: (index: number) => void
+  onDrop: (index: number) => void
+  onDragEnd: () => void
+}) {
   return (
     <div
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move'
+        onDragStart(index)
+      }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        onDragOver(index)
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        onDrop(index)
+      }}
+      onDragEnd={onDragEnd}
       className={css({
         position: 'relative',
         w: '190px',
@@ -1310,13 +1345,39 @@ function PhotoThumbnail({ src, onDelete }: { src: string; onDelete: () => void }
         overflow: 'hidden',
         bg: 'bg.alternate',
         flexShrink: 0,
+        cursor: 'grab',
+        opacity: isDragging ? '0.4' : '1',
+        outlineWidth: isDropTarget ? '3px' : '0px',
+        outlineStyle: 'solid',
+        outlineColor: 'border.focus',
+        outlineOffset: '2px',
+        transition: 'opacity 0.15s ease',
       })}
     >
       <img
         src={src}
         alt=""
+        draggable={false}
         className={css({ w: '100%', h: '100%', objectFit: 'cover', display: 'block' })}
       />
+      <div
+        className={css({
+          position: 'absolute',
+          top: '200',
+          left: '200',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          w: '32px',
+          h: '32px',
+          borderRadius: '500',
+          bg: 'bg.inverse',
+          color: 'text.inverse',
+          cursor: 'grab',
+        })}
+      >
+        <IconDrag size={2} />
+      </div>
       <div className={css({ position: 'absolute', bottom: '200', right: '200' })}>
         <Menu width={180} placement="bottom-end">
           <Menu.Toggle>
@@ -1378,6 +1439,35 @@ function PhotoUploadScreen({
   const [photos, setPhotos] = useState<string[]>(listing.uploadedPhotos)
   const [optimize, setOptimize] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<{ index: number; src: string } | null>(null)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
+
+  const handlePhotoDragStart = (index: number) => setDragIndex(index)
+
+  const handlePhotoDragOver = (index: number) => {
+    if (dragIndex === null || dragIndex === index) return
+    setDragOverIndex(index)
+  }
+
+  const handlePhotoDrop = (index: number) => {
+    setDragOverIndex(null)
+    if (dragIndex === null || dragIndex === index) {
+      setDragIndex(null)
+      return
+    }
+    setPhotos((prev) => {
+      const next = [...prev]
+      const [moved] = next.splice(dragIndex, 1)
+      next.splice(index, 0, moved)
+      return next
+    })
+    setDragIndex(null)
+  }
+
+  const handlePhotoDragEnd = () => {
+    setDragIndex(null)
+    setDragOverIndex(null)
+  }
 
   const handleDropzoneClick = () => {
     const remaining = SAMPLE_HOUSE_PHOTOS.filter((url) => !photos.includes(url))
@@ -1493,7 +1583,18 @@ function PhotoUploadScreen({
           {photos.length > 0 && (
             <div className={hstack({ gap: '300', alignItems: 'center', flexWrap: 'wrap' })}>
               {photos.map((src, i) => (
-                <PhotoThumbnail key={i} src={src} onDelete={() => handleDeletePhoto(i)} />
+                <PhotoThumbnail
+                  key={src}
+                  src={src}
+                  index={i}
+                  onDelete={() => handleDeletePhoto(i)}
+                  isDragging={dragIndex === i}
+                  isDropTarget={dragOverIndex === i && dragIndex !== i}
+                  onDragStart={handlePhotoDragStart}
+                  onDragOver={handlePhotoDragOver}
+                  onDrop={handlePhotoDrop}
+                  onDragEnd={handlePhotoDragEnd}
+                />
               ))}
             </div>
           )}

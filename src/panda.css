@@ -1094,6 +1094,10 @@
     gap: var(--spacing-400);
 }
 
+  .trs_opacity_0\.15s_ease {
+    transition: opacity 0.15s ease;
+}
+
   .gap_600 {
     gap: var(--spacing-600);
 }
@@ -1619,8 +1623,40 @@
     flex-direction: column;
 }
 
+  .op_0\.4 {
+    opacity: 0.4;
+}
+
+  .op_1 {
+    opacity: 1;
+}
+
+  .ring-w_3px {
+    outline-width: 3px;
+}
+
+  .ring-w_0px {
+    outline-width: 0px;
+}
+
   .asp_3_\/_2 {
     aspect-ratio: 3 / 2;
+}
+
+  .cursor_grab {
+    cursor: grab;
+}
+
+  .outline-style_solid {
+    outline-style: solid;
+}
+
+  .ring-c_border\.focus {
+    outline-color: var(--colors-border-focus);
+}
+
+  .ring-o_2px {
+    outline-offset: 2px;
 }
 
   .bx-sh_dialog {
@@ -1827,10 +1863,6 @@
   .trs-dur_100 {
     --transition-duration: var(--durations-100);
     transition-duration: var(--durations-100);
-}
-
-  .ring-c_border\.focus {
-    outline-color: var(--colors-border-focus);
 }
 
   .ring-o_-1px {
@@ -2263,10 +2295,6 @@
     letter-spacing: inherit;
 }
 
-  .ring-o_2px {
-    outline-offset: 2px;
-}
-
   .bx-s_border-box {
     box-sizing: border-box;
 }
@@ -2649,10 +2677,6 @@
     flex-direction: row-reverse;
 }
 
-  .cursor_grab {
-    cursor: grab;
-}
-
   .trs-prop_\[border-color\,_box-shadow\] {
     --transition-prop: border-color, box-shadow;
     transition-property: border-color, box-shadow;
@@ -2829,12 +2853,12 @@
     width: 190px;
 }
 
-  .bottom_200 {
-    bottom: var(--spacing-200);
+  .top_200 {
+    top: var(--spacing-200);
 }
 
-  .right_200 {
-    right: var(--spacing-200);
+  .left_200 {
+    left: var(--spacing-200);
 }
 
   .w_32px {
@@ -2843,6 +2867,14 @@
 
   .h_32px {
     height: 32px;
+}
+
+  .bottom_200 {
+    bottom: var(--spacing-200);
+}
+
+  .right_200 {
+    right: var(--spacing-200);
 }
 
   .min-h_100dvh {
