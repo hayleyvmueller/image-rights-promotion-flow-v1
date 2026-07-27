@@ -2067,7 +2067,9 @@ const OVERVIEW_DETAILS = [
     icon: <IconRefreshCw size={3} />,
     title: 'Control over enhancement display',
     description:
-      "Enhanced media can be turned off—or back on—in one simple step, so team admins can adjust how a listing looks at any time. Note for this MVP: toggling off does not delete or regenerate the underlying enhanced media—RDC retains the legal rights to all photos uploaded, even once deleted, so this control only affects whether the enhanced version displays in the consumer experience, not whether it's recreated.",
+      "Enhanced media can be turned off—or back on—in one simple step, so team admins can adjust how a listing looks at any time.",
+    note:
+      "Note for this MVP: toggling off does not delete or regenerate the underlying enhanced media—RDC retains the legal rights to all photos uploaded, even once deleted, so this control only affects whether the enhanced version displays in the consumer experience, not whether it's recreated.",
   },
   {
     icon: <IconNotifications size={3} />,
@@ -2124,9 +2126,16 @@ function OverviewScreen({ onNext }: { onNext: () => void }) {
                 >
                   {detail.icon}
                 </div>
-                <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
-                  <strong>{detail.title}:</strong> {detail.description}
-                </p>
+                <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                  <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+                    <strong>{detail.title}:</strong> {detail.description}
+                  </p>
+                  {detail.note && (
+                    <p className={css({ textStyle: 'bodyMd', color: 'text.alternate' })}>
+                      {detail.note}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
