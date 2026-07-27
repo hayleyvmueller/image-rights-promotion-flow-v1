@@ -58,6 +58,9 @@ import {
   IconProfile,
   IconRefreshCw,
   IconLock,
+  IconArrowRight,
+  IconCircleQuestion,
+  IconLightbulb,
   LogoRealtorProDefault,
   LogoBrandWhite,
   LogoBrand,
@@ -2074,7 +2077,7 @@ const OVERVIEW_DETAILS = [
   },
 ]
 
-function OverviewScreen() {
+function OverviewScreen({ onNext }: { onNext: () => void }) {
   return (
     <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
       <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
@@ -2127,6 +2130,83 @@ function OverviewScreen() {
           </div>
         </div>
       </Card>
+
+      <div className={hstack({ justifyContent: 'flex-end' })}>
+        <Button styleType="Primary" size="lg" endIcon={<IconArrowRight size={3} />} onClick={onNext}>
+          Next
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+const EXPECTATIONS_DETAILS = [
+  {
+    icon: <IconCircleQuestion size={3} />,
+    title: 'Questions on Photo Upload & Image Rights',
+    description:
+      'We will recap feedback given at the end of this session and flag anything we need to further discuss as a team.',
+  },
+  {
+    icon: <IconLightbulb size={3} />,
+    title: 'Considerations for continued optimization after this first iteration',
+    description:
+      'All feedback is welcome and will be noted for consideration as part of continued optimizations (e.g., self-serve agent upload, video/panning enhancements, e-signature-grade consent, AI-generated media).',
+  },
+]
+
+function ExpectationsScreen({ onBack }: { onBack: () => void }) {
+  return (
+    <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
+      <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+        Expectations
+      </h1>
+
+      <Card className={css({ px: { base: '400', lg: '800' }, py: { base: '500', lg: '700' } })}>
+        <div className={vstack({ alignItems: 'flex-start', gap: '400' })}>
+          <h2 className={css({ textStyle: 'headingMd', fontWeight: 'bold', color: 'text.base' })}>
+            Spotlight Listings — Photo Upload &amp; Image Rights
+          </h2>
+          <h3 className={css({ textStyle: 'headingSm', fontWeight: 'bold', color: 'text.base' })}>
+            Walkthrough expectations
+          </h3>
+          <p className={css({ textStyle: 'bodyLg', color: 'text.alternate' })}>
+            Designs shown today are what we plan on delivering to meet our first iteration of
+            team-managed photo upload and image rights consent. Any adjustments to the core
+            requirements will need to go through our Change Request log to preserve the integrity
+            of the plan that's in place and being worked on by engineering. Today, we'll be
+            looking for your thoughts on:
+          </p>
+        </div>
+      </Card>
+
+      <Card className={css({ px: { base: '400', lg: '800' }, py: { base: '500', lg: '700' } })}>
+        <div className={vstack({ alignItems: 'stretch', gap: '600', w: '100%' })}>
+          {EXPECTATIONS_DETAILS.map((detail) => (
+            <div key={detail.title} className={hstack({ gap: '400', alignItems: 'flex-start' })}>
+              <div
+                className={css({
+                  flexShrink: 0,
+                  color: 'text.base',
+                  display: 'inline-flex',
+                  mt: '100',
+                })}
+              >
+                {detail.icon}
+              </div>
+              <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+                <strong>{detail.title}:</strong> {detail.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <div className={hstack({ justifyContent: 'flex-start' })}>
+        <Button styleType="Tertiary" size="lg" startIcon={<IconArrowLeft size={3} />} onClick={onBack}>
+          Back
+        </Button>
+      </div>
     </div>
   )
 }
@@ -3580,6 +3660,7 @@ export default function Shell() {
   const [navPanelOpen, setNavPanelOpen] = useState(false)
   const [sidebarPage, setSidebarPage] = useState<SidebarPage>('all-listings')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [overviewStep, setOverviewStep] = useState<'overview' | 'expectations'>('overview')
 
   const handleSidebarNavigate = (page: SidebarPage) => {
     setSidebarPage(page)
@@ -3597,6 +3678,7 @@ export default function Shell() {
     setExperience('team')
     setNavPanelOpen(false)
     setMobileNavOpen(false)
+    setOverviewStep('overview')
   }
 
   const selectedListing =
@@ -3628,6 +3710,7 @@ export default function Shell() {
     setExperience(next)
     if (next === 'team') setView({ page: 'list' })
     setNavPanelOpen(false)
+    setOverviewStep('overview')
   }
 
   if (experience !== 'team') {
@@ -3647,7 +3730,11 @@ export default function Shell() {
                   py: { base: '500', md: '700' },
                 })}
               >
-                <OverviewScreen />
+                {overviewStep === 'overview' ? (
+                  <OverviewScreen onNext={() => setOverviewStep('expectations')} />
+                ) : (
+                  <ExpectationsScreen onBack={() => setOverviewStep('overview')} />
+                )}
               </div>
             </main>
           </>

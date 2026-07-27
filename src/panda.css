@@ -1819,6 +1819,10 @@
     justify-content: flex-end;
 }
 
+  .jc_flex-start {
+    justify-content: flex-start;
+}
+
   .c_\[\#48566c\] {
     color: #48566c;
 }
@@ -2367,10 +2371,6 @@
 
   .as_flex-start {
     align-self: flex-start;
-}
-
-  .jc_flex-start {
-    justify-content: flex-start;
 }
 
   .grid-tc_1fr {
