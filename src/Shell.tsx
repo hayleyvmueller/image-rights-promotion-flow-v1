@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef } from 'react'
+import { useState, useLayoutEffect, useEffect, useRef } from 'react'
 import {
   SideNavigation,
   SideNavigationItem,
@@ -297,9 +297,33 @@ function formatListedDate(mmddyy: string): string {
 const HEADER_HEIGHT = '72px'
 const SIDEBAR_WIDTH = '300px'
 
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(query).matches : false
+  )
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const handler = () => setMatches(mq.matches)
+    handler()
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [query])
+  return matches
+}
+
 // ─── Top bar ────────────────────────────────────────────────────────────────────
 
-function TopBar() {
+function HamburgerIcon() {
+  return (
+    <span className={vstack({ gap: '4px', w: '20px' })}>
+      <span className={css({ w: '100%', h: '2px', bg: 'currentColor', borderRadius: '100' })} />
+      <span className={css({ w: '100%', h: '2px', bg: 'currentColor', borderRadius: '100' })} />
+      <span className={css({ w: '100%', h: '2px', bg: 'currentColor', borderRadius: '100' })} />
+    </span>
+  )
+}
+
+function TopBar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
   return (
     <header
       className={css({
@@ -315,16 +339,45 @@ function TopBar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        px: '600',
+        px: { base: '400', sm: '600' },
+        gap: '400',
         zIndex: 'navbar.fixed',
       })}
     >
-      <LogoRealtorProDefault
-        className={css({ display: 'block', flexShrink: 0 })}
-        style={{ height: 24, width: 193 }}
-      />
+      <div className={hstack({ gap: '400', alignItems: 'center', minW: '0' })}>
+        {onMenuClick && (
+          <button
+            type="button"
+            aria-label="Open menu"
+            onClick={onMenuClick}
+            className={css({
+              display: 'inline-flex',
+              md: { display: 'none' },
+              alignItems: 'center',
+              justifyContent: 'center',
+              w: '40px',
+              h: '40px',
+              flexShrink: 0,
+              borderRadius: '200',
+              cursor: 'pointer',
+              color: 'text.base',
+              _hoverSupported: { bg: 'bg.alternate' },
+            })}
+          >
+            <HamburgerIcon />
+          </button>
+        )}
+        <LogoRealtorProDefault
+          className={css({
+            display: 'block',
+            flexShrink: 0,
+            h: { base: '18px', sm: '24px' },
+            w: { base: '145px', sm: '193px' },
+          })}
+        />
+      </div>
 
-      <div className={hstack({ gap: '400', alignItems: 'center' })}>
+      <div className={hstack({ gap: '400', alignItems: 'center', flexShrink: 0 })}>
         {/* Notification bell with red dot */}
         <button
           aria-label="Notifications"
@@ -384,7 +437,7 @@ function TopBar() {
 
 type SidebarPage = 'dashboard' | 'all-listings' | 'spotlight-listings'
 
-function Sidebar({
+function SidebarNav({
   activePage,
   onNavigate,
 }: {
@@ -394,8 +447,92 @@ function Sidebar({
   const [listingsOpen, setListingsOpen] = useState(true)
 
   return (
+    <SideNavigation className={css({ py: '500' })}>
+      <SideNavigationItem
+        id="dashboard"
+        topLevel
+        startIcon={<IconHome size={3} />}
+        linkText="Dashboard"
+        active={activePage === 'dashboard'}
+        onLinkClick={() => onNavigate('dashboard')}
+      />
+
+      <SideNavigationGroup
+        id="team-group"
+        show={false}
+        itemProps={{
+          id: 'team',
+          topLevel: true,
+          isParent: true,
+          startIcon: <IconUsers size={3} />,
+          linkText: 'Team',
+          listId: 'team-group',
+          show: false,
+        }}
+      >
+        <SideNavigationItem id="team-members" linkText="Members" />
+      </SideNavigationGroup>
+
+      <SideNavigationGroup
+        id="leads-group"
+        show={false}
+        itemProps={{
+          id: 'leads',
+          topLevel: true,
+          isParent: true,
+          startIcon: <IconContact size={3} />,
+          linkText: 'Leads',
+          listId: 'leads-group',
+          show: false,
+        }}
+      >
+        <SideNavigationItem id="leads-all" linkText="All leads" />
+      </SideNavigationGroup>
+
+      <SideNavigationGroup
+        id="listings-group"
+        show={listingsOpen}
+        itemProps={{
+          id: 'listings',
+          topLevel: true,
+          isParent: true,
+          startIcon: <IconListingStatus size={3} />,
+          linkText: 'Listings',
+          listId: 'listings-group',
+          show: listingsOpen,
+          onArrowClick: () => setListingsOpen((o) => !o),
+          onLinkClick: () => setListingsOpen((o) => !o),
+        }}
+      >
+        <SideNavigationItem
+          id="all-listings"
+          linkText="All listings"
+          active={activePage === 'all-listings'}
+          onLinkClick={() => onNavigate('all-listings')}
+        />
+        <SideNavigationItem
+          id="spotlight-listings"
+          linkText="Spotlight listings"
+          active={activePage === 'spotlight-listings'}
+          onLinkClick={() => onNavigate('spotlight-listings')}
+        />
+      </SideNavigationGroup>
+    </SideNavigation>
+  )
+}
+
+function Sidebar({
+  activePage,
+  onNavigate,
+}: {
+  activePage: SidebarPage
+  onNavigate: (page: SidebarPage) => void
+}) {
+  return (
     <aside
       className={css({
+        display: 'none',
+        md: { display: 'block' },
         position: 'fixed',
         top: HEADER_HEIGHT,
         left: '0',
@@ -409,78 +546,35 @@ function Sidebar({
         zIndex: 'navbar.default',
       })}
     >
-      <SideNavigation className={css({ py: '500' })}>
-        <SideNavigationItem
-          id="dashboard"
-          topLevel
-          startIcon={<IconHome size={3} />}
-          linkText="Dashboard"
-          active={activePage === 'dashboard'}
-          onLinkClick={() => onNavigate('dashboard')}
-        />
-
-        <SideNavigationGroup
-          id="team-group"
-          show={false}
-          itemProps={{
-            id: 'team',
-            topLevel: true,
-            isParent: true,
-            startIcon: <IconUsers size={3} />,
-            linkText: 'Team',
-            listId: 'team-group',
-            show: false,
-          }}
-        >
-          <SideNavigationItem id="team-members" linkText="Members" />
-        </SideNavigationGroup>
-
-        <SideNavigationGroup
-          id="leads-group"
-          show={false}
-          itemProps={{
-            id: 'leads',
-            topLevel: true,
-            isParent: true,
-            startIcon: <IconContact size={3} />,
-            linkText: 'Leads',
-            listId: 'leads-group',
-            show: false,
-          }}
-        >
-          <SideNavigationItem id="leads-all" linkText="All leads" />
-        </SideNavigationGroup>
-
-        <SideNavigationGroup
-          id="listings-group"
-          show={listingsOpen}
-          itemProps={{
-            id: 'listings',
-            topLevel: true,
-            isParent: true,
-            startIcon: <IconListingStatus size={3} />,
-            linkText: 'Listings',
-            listId: 'listings-group',
-            show: listingsOpen,
-            onArrowClick: () => setListingsOpen((o) => !o),
-            onLinkClick: () => setListingsOpen((o) => !o),
-          }}
-        >
-          <SideNavigationItem
-            id="all-listings"
-            linkText="All listings"
-            active={activePage === 'all-listings'}
-            onLinkClick={() => onNavigate('all-listings')}
-          />
-          <SideNavigationItem
-            id="spotlight-listings"
-            linkText="Spotlight listings"
-            active={activePage === 'spotlight-listings'}
-            onLinkClick={() => onNavigate('spotlight-listings')}
-          />
-        </SideNavigationGroup>
-      </SideNavigation>
+      <SidebarNav activePage={activePage} onNavigate={onNavigate} />
     </aside>
+  )
+}
+
+function MobileSidebarDrawer({
+  open,
+  onClose,
+  activePage,
+  onNavigate,
+}: {
+  open: boolean
+  onClose: () => void
+  activePage: SidebarPage
+  onNavigate: (page: SidebarPage) => void
+}) {
+  return (
+    <Modal open={open} onClose={onClose} layout="drawer" drawerPosition="left" size="sm">
+      <Modal.Header title="Menu" />
+      <Modal.Body noPadding>
+        <SidebarNav
+          activePage={activePage}
+          onNavigate={(page) => {
+            onNavigate(page)
+            onClose()
+          }}
+        />
+      </Modal.Body>
+    </Modal>
   )
 }
 
@@ -558,7 +652,14 @@ function AllListingsScreen({
   return (
     <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
       {/* Page header */}
-      <div className={hstack({ justifyContent: 'space-between', alignItems: 'center' })}>
+      <div
+        className={hstack({
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '400',
+        })}
+      >
         <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
           All listings
         </h1>
@@ -595,16 +696,17 @@ function AllListingsScreen({
 
         {/* Filter row */}
         <div
-          className={hstack({
-            justifyContent: 'space-between',
-            alignItems: 'center',
+          className={css({
+            display: 'flex',
+            flexDirection: 'column',
+            sm: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
             gap: '400',
-            px: '600',
+            px: { base: '400', sm: '600' },
             pb: '500',
           })}
         >
-          <div className={hstack({ gap: '300', alignItems: 'center' })}>
-            <div className={css({ w: '320px' })}>
+          <div className={hstack({ gap: '300', alignItems: 'center', flexWrap: 'wrap' })}>
+            <div className={css({ w: { base: '100%', xs: '320px' } })}>
               <Search
                 size="inline"
                 placeholder="Search for a listing"
@@ -619,16 +721,19 @@ function AllListingsScreen({
             </Button>
           </div>
 
-          <ContentSwitch size="lg">
-            {SEGMENTS.map((s) => (
-              <ContentSwitch.Item key={s} selected={segment === s} onClick={() => setSegment(s)}>
-                {s}
-              </ContentSwitch.Item>
-            ))}
-          </ContentSwitch>
+          <div className={css({ overflowX: 'auto', maxW: '100%' })}>
+            <ContentSwitch size="lg">
+              {SEGMENTS.map((s) => (
+                <ContentSwitch.Item key={s} selected={segment === s} onClick={() => setSegment(s)}>
+                  {s}
+                </ContentSwitch.Item>
+              ))}
+            </ContentSwitch>
+          </div>
         </div>
 
         {/* Table */}
+        <div className={css({ overflowX: 'auto' })}>
         <Table lines>
           <Table.Header>
             <Table.Row>
@@ -779,6 +884,7 @@ function AllListingsScreen({
             ))}
           </Table.Body>
         </Table>
+        </div>
 
         {/* Pagination */}
         <div className={hstack({ justifyContent: 'center', px: '600', py: '500' })}>
@@ -855,11 +961,12 @@ function PromoteListingsScreen({
       {/* Table card */}
       <Card>
         <div
-          className={hstack({
-            justifyContent: 'space-between',
-            alignItems: 'center',
+          className={css({
+            display: 'flex',
+            flexDirection: 'column',
+            sm: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
             gap: '400',
-            px: '600',
+            px: { base: '400', sm: '600' },
             pt: '600',
             pb: '500',
           })}
@@ -873,7 +980,7 @@ function PromoteListingsScreen({
             </span>
           </div>
           {selected.size > 0 && (
-            <div className={hstack({ gap: '400' })}>
+            <div className={hstack({ gap: '400', flexWrap: 'wrap' })}>
               <Button styleType="Tertiary" size="lg" onClick={() => setSelected(new Set())}>
                 Clear all
               </Button>
@@ -884,8 +991,8 @@ function PromoteListingsScreen({
           )}
         </div>
 
-        <div className={css({ px: '600', pb: '500' })}>
-          <div className={css({ w: '320px' })}>
+        <div className={css({ px: { base: '400', sm: '600' }, pb: '500' })}>
+          <div className={css({ w: { base: '100%', xs: '320px' } })}>
             <Search
               size="inline"
               placeholder="Search for a listing"
@@ -897,6 +1004,7 @@ function PromoteListingsScreen({
           </div>
         </div>
 
+        <div className={css({ overflowX: 'auto' })}>
         <Table lines>
           <Table.Header>
             <Table.Row>
@@ -996,6 +1104,7 @@ function PromoteListingsScreen({
             ))}
           </Table.Body>
         </Table>
+        </div>
 
         {/* Pagination */}
         <div className={hstack({ justifyContent: 'center', px: '600', py: '500' })}>
@@ -1042,12 +1151,13 @@ function ListingDetailScreen({
 
   const contentRef = useRef<HTMLDivElement>(null)
   const [photoHeight, setPhotoHeight] = useState<number | null>(null)
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   useLayoutEffect(() => {
     if (contentRef.current) {
       setPhotoHeight(contentRef.current.getBoundingClientRect().height)
     }
-  }, [listing.id])
+  }, [listing.id, isDesktop])
 
   const initials = listing.agent.split(' ')
 
@@ -1063,18 +1173,33 @@ function ListingDetailScreen({
           LinkComponent={BreadcrumbLink}
         />
 
-        <div className={hstack({ gap: '500', alignItems: 'flex-start' })}>
+        <div
+          className={css({
+            display: 'flex',
+            flexDirection: 'column',
+            md: { flexDirection: 'row' },
+            gap: '500',
+            alignItems: 'flex-start',
+            w: '100%',
+          })}
+        >
           <div
             className={css({
               borderRadius: '300',
               overflow: 'hidden',
               flexShrink: 0,
               bg: 'bg.alternate',
+              w: { base: '100%', md: 'auto' },
+              aspectRatio: { base: '4 / 3', md: 'auto' },
             })}
-            style={{
-              height: photoHeight ?? undefined,
-              width: photoHeight ? (photoHeight * 4) / 3 : undefined,
-            }}
+            style={
+              isDesktop
+                ? {
+                    height: photoHeight ?? undefined,
+                    width: photoHeight ? (photoHeight * 4) / 3 : undefined,
+                  }
+                : undefined
+            }
           >
             <img
               src={listing.photo}
@@ -1082,8 +1207,11 @@ function ListingDetailScreen({
               className={css({ w: '100%', h: '100%', objectFit: 'cover', display: 'block' })}
             />
           </div>
-          <div ref={contentRef} className={vstack({ alignItems: 'flex-start', gap: '300' })}>
-            <div className={hstack({ gap: '200', alignItems: 'center' })}>
+          <div
+            ref={contentRef}
+            className={vstack({ alignItems: 'flex-start', gap: '300', w: '100%' })}
+          >
+            <div className={hstack({ gap: '200', alignItems: 'center', flexWrap: 'wrap' })}>
               {listing.promoted && (
                 <Tag dataColor="blue" startIcon={<IconZap size={2} />}>
                   Spotlight Listing
@@ -1145,7 +1273,7 @@ function ListingDetailScreen({
               borderStyle: 'solid',
               borderColor: 'border.base',
               borderRadius: '300',
-              p: '800',
+              p: { base: '500', md: '800' },
               display: 'flex',
               flexDirection: 'column',
               gap: '400',
@@ -1182,8 +1310,8 @@ function ListingDetailScreen({
                 </div>
 
                 <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
-                  <div className={hstack({ gap: '500', alignItems: 'center' })}>
-                    <div className={hstack({ gap: '200', alignItems: 'center' })}>
+                  <div className={hstack({ gap: '500', alignItems: 'center', flexWrap: 'wrap' })}>
+                    <div className={hstack({ gap: '200', alignItems: 'center', flexWrap: 'wrap' })}>
                       {listing.uploadedPhotos.slice(0, 4).map((src, i) => (
                         <img
                           key={i}
@@ -1211,7 +1339,16 @@ function ListingDetailScreen({
                 </div>
               </div>
             ) : (
-              <div className={hstack({ alignItems: 'center', gap: '700', w: '100%' })}>
+              <div
+                className={css({
+                  display: 'flex',
+                  flexDirection: 'column',
+                  sm: { flexDirection: 'row', alignItems: 'center' },
+                  alignItems: 'stretch',
+                  gap: '500',
+                  w: '100%',
+                })}
+              >
                 {listing.promoted ? (
                   <>
                     <div className={vstack({ alignItems: 'flex-start', gap: '300', flex: '1' })}>
@@ -1260,7 +1397,11 @@ function ListingDetailScreen({
         </Tabs.Content>
       </Tabs>
 
-      <Modal open={pendingToggle !== null} onClose={() => setPendingToggle(null)}>
+      <Modal
+        open={pendingToggle !== null}
+        onClose={() => setPendingToggle(null)}
+        mobileLayout="fullScreen"
+      >
         <Modal.Header
           title={
             pendingToggle === 'remove'
@@ -1338,7 +1479,7 @@ function PhotoThumbnail({
       }}
       className={css({
         position: 'relative',
-        w: '190px',
+        w: { base: '140px', xs: '160px', md: '190px' },
         aspectRatio: '3 / 2',
         borderRadius: '200',
         overflow: 'hidden',
@@ -1471,7 +1612,15 @@ function PhotoUploadScreen({
 
   return (
     <div className={css({ minH: '100dvh', bg: 'bg.base' })}>
-      <div className={vstack({ alignItems: 'stretch', gap: '600', px: '1600', py: '800', pb: '1600' })}>
+      <div
+        className={vstack({
+          alignItems: 'stretch',
+          gap: '600',
+          px: { base: '400', sm: '800', md: '1600' },
+          py: { base: '500', md: '800' },
+          pb: { base: '1200', md: '1600' },
+        })}
+      >
         <div className={vstack({ alignItems: 'flex-start', gap: '300' })}>
           <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
             Enhanced media photo upload
@@ -1490,7 +1639,7 @@ function PhotoUploadScreen({
             borderStyle: 'solid',
             borderColor: 'border.base',
             borderRadius: '300',
-            p: '800',
+            p: { base: '400', md: '800' },
             display: 'flex',
             flexDirection: 'column',
             gap: '600',
@@ -1615,7 +1764,7 @@ function PhotoUploadScreen({
         </div>
       </div>
 
-      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} mobileLayout="fullScreen">
         <Modal.Header title="This photo is live on your listing" />
         <Modal.Body>
           <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
@@ -1660,7 +1809,7 @@ function PromoteModal({
 }) {
   const count = listings?.length ?? 0
   return (
-    <Modal open={!!listings} onClose={onClose}>
+    <Modal open={!!listings} onClose={onClose} mobileLayout="fullScreen">
       <Modal.Header
         title={`Apply ${count} of your ${AVAILABLE_PROMOTIONS} available promotions?`}
       />
@@ -1711,7 +1860,7 @@ function SaveImagesModal({
   }
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal open={open} onClose={handleClose} mobileLayout="fullScreen">
       <Modal.Header title="Allow Realtor.com to enhance your photos" />
       <Modal.Body>
         <div className={vstack({ alignItems: 'stretch', gap: '600' })}>
@@ -2020,7 +2169,7 @@ function LegacyEditCard({
       className={css({
         bg: 'white',
         borderRadius: '[16px]',
-        p: '800',
+        p: { base: '500', md: '800' },
       })}
     >
       <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
@@ -2097,7 +2246,7 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
         className={hstack({
           justifyContent: 'space-between',
           alignItems: 'center',
-          px: '800',
+          px: { base: '400', md: '800' },
           py: '600',
           bg: 'white',
           borderBottomWidth: '100',
@@ -2126,9 +2275,29 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Body */}
-      <div className={hstack({ alignItems: 'flex-start', gap: '900', flex: '1', px: '800', py: '700' })}>
+      <div
+        className={css({
+          display: 'flex',
+          flexDirection: 'column',
+          md: { flexDirection: 'row' },
+          alignItems: 'flex-start',
+          gap: { base: '500', md: '900' },
+          flex: '1',
+          px: { base: '400', sm: '600', md: '800' },
+          py: { base: '500', md: '700' },
+        })}
+      >
         {/* Jump to nav */}
-        <div className={vstack({ alignItems: 'flex-start', gap: '400', w: '160px', flexShrink: 0 })}>
+        <div
+          className={css({
+            display: { base: 'none', md: 'flex' },
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: '400',
+            w: '160px',
+            flexShrink: 0,
+          })}
+        >
           <span className={css({ fontSize: '[16px]', fontWeight: '600', color: LEGACY_DARK })}>
             Jump to:
           </span>
@@ -2257,7 +2426,10 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
             </div>
 
             {LEGACY_OPEN_HOUSE_ROWS.map((row, i) => (
-              <div key={i} className={hstack({ gap: '500', alignItems: 'flex-end' })}>
+              <div
+                key={i}
+                className={hstack({ gap: '500', alignItems: 'flex-end', flexWrap: 'wrap' })}
+              >
                 <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
                   <span className={css({ fontSize: '[14px]', fontWeight: '500', color: LEGACY_DARK })}>
                     Date
@@ -2358,13 +2530,13 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
             className={css({
               bg: 'white',
               borderRadius: '[16px]',
-              p: '800',
+              p: { base: '500', md: '800' },
             })}
           >
             <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
               Photos (13)
             </h2>
-            <div className={hstack({ gap: '300', alignItems: 'center', mt: '500' })}>
+            <div className={hstack({ gap: '300', alignItems: 'center', flexWrap: 'wrap', mt: '500' })}>
               <IconPhotos size={3} />
               <span className={css({ fontSize: '[20px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
                 Current photo source: Team upload
@@ -2382,7 +2554,7 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
         className={hstack({
           justifyContent: 'space-between',
           alignItems: 'center',
-          px: '800',
+          px: { base: '400', md: '800' },
           py: '600',
           bg: 'white',
           borderTopWidth: '100',
@@ -2458,7 +2630,9 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
         className={hstack({
           justifyContent: 'space-between',
           alignItems: 'center',
-          px: '700',
+          flexWrap: 'wrap',
+          gap: '300',
+          px: { base: '400', md: '700' },
           py: '500',
           bg: 'white',
           borderBottomWidth: '100',
@@ -2497,19 +2671,29 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
         </div>
       </div>
 
-      <div className={hstack({ alignItems: 'flex-start', gap: '0' })}>
+      <div
+        className={css({
+          display: 'flex',
+          flexDirection: 'column',
+          md: { flexDirection: 'row' },
+          alignItems: 'stretch',
+          gap: '0',
+        })}
+      >
         {/* Sidebar */}
         <div
           data-legacy-nav
           className={css({
-            w: '256px',
+            w: { base: '100%', md: '256px' },
             flexShrink: 0,
             bg: 'white',
-            borderRightWidth: '100',
+            borderRightWidth: { base: '0', md: '100' },
             borderRightStyle: 'solid',
+            borderBottomWidth: { base: '100', md: '0' },
+            borderBottomStyle: 'solid',
             borderColor: LEGACY_BORDER,
             py: '600',
-            minH: 'calc(100dvh - 76px)',
+            minH: { base: 'auto', md: 'calc(100dvh - 76px)' },
           })}
         >
           {LEGACY_NAV_ITEMS.map((item) => (
@@ -2547,9 +2731,24 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
         </div>
 
         {/* Main content */}
-        <div className={css({ flex: '1', px: '900', py: '700' })}>
+        <div
+          className={css({
+            flex: '1',
+            minW: '0',
+            px: { base: '400', sm: '600', md: '900' },
+            py: { base: '500', md: '700' },
+          })}
+        >
           {/* Back link + actions */}
-          <div className={hstack({ justifyContent: 'space-between', alignItems: 'center', mb: '700' })}>
+          <div
+            className={hstack({
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '300',
+              mb: '700',
+            })}
+          >
             <button
               type="button"
               onClick={onBack}
@@ -2608,7 +2807,16 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
           </div>
 
           {/* Property header */}
-          <div className={hstack({ gap: '500', alignItems: 'flex-start', mb: '700' })}>
+          <div
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              xs: { flexDirection: 'row' },
+              gap: '500',
+              alignItems: 'flex-start',
+              mb: '700',
+            })}
+          >
             <div className={css({ position: 'relative', flexShrink: 0 })}>
               <img
                 src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=240&h=180&fit=crop"
@@ -2644,7 +2852,7 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
               >
                 123 Main Street, Austin, TX 78731
               </h1>
-              <div className={hstack({ gap: '400', alignItems: 'center' })}>
+              <div className={hstack({ gap: '400', alignItems: 'center', flexWrap: 'wrap' })}>
                 <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>
                   BrightMLS 12345678
                 </span>
@@ -2664,6 +2872,8 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
               borderBottomStyle: 'solid',
               borderColor: LEGACY_BORDER,
               mb: '700',
+              overflowX: 'auto',
+              flexShrink: '0',
             })}
           >
             {LEGACY_TABS.map((tab) => {
@@ -2679,6 +2889,8 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
                     borderBottomWidth: active ? '[4px]' : '0',
                     borderBottomStyle: 'solid',
                     borderColor: LEGACY_DARK,
+                    whiteSpace: 'nowrap',
+                    flexShrink: '0',
                   })}
                 >
                   {tab}
@@ -2695,7 +2907,7 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
               borderStyle: 'solid',
               borderColor: LEGACY_BORDER,
               borderRadius: '[16px]',
-              p: '800',
+              p: { base: '500', md: '800' },
               mb: '600',
             })}
           >
@@ -2734,9 +2946,11 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
             </div>
 
             <div
-              className={hstack({
-                justifyContent: 'space-between',
-                alignItems: 'center',
+              className={css({
+                display: 'flex',
+                flexDirection: 'column',
+                xs: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+                gap: '200',
                 mt: '700',
                 mb: '400',
               })}
@@ -2764,11 +2978,18 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
                     p: '500',
                   })}
                 >
-                  <div className={hstack({ justifyContent: 'space-between', alignItems: 'flex-start' })}>
+                  <div
+                    className={hstack({
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                      gap: '200',
+                    })}
+                  >
                     <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '500', color: LEGACY_DARK })}>
                       {rec.title}
                     </span>
-                    <div className={hstack({ gap: '400', alignItems: 'center' })}>
+                    <div className={hstack({ gap: '400', alignItems: 'center', flexWrap: 'wrap' })}>
                       {rec.actions.map((action) => (
                         <span
                           key={action}
@@ -2786,7 +3007,15 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
                       ))}
                     </div>
                   </div>
-                  <div className={hstack({ justifyContent: 'space-between', alignItems: 'flex-end', mt: '200' })}>
+                  <div
+                    className={hstack({
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-end',
+                      flexWrap: 'wrap',
+                      gap: '200',
+                      mt: '200',
+                    })}
+                  >
                     <span className={css({ fontSize: '[14px]', color: LEGACY_GRAY })}>
                       {rec.description}
                     </span>
@@ -2814,10 +3043,18 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
               borderStyle: 'solid',
               borderColor: LEGACY_BORDER,
               borderRadius: '[16px]',
-              p: '800',
+              p: { base: '500', md: '800' },
             })}
           >
-            <div className={hstack({ justifyContent: 'space-between', alignItems: 'flex-start' })}>
+            <div
+              className={css({
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                xs: { flexDirection: 'row', justifyContent: 'space-between' },
+                gap: '400',
+              })}
+            >
               <div>
                 <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
                   Listing details and photos
@@ -2864,7 +3101,7 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
                   Show more
                 </span>
               </p>
-              <div className={hstack({ gap: '700' })}>
+              <div className={hstack({ gap: '700', flexWrap: 'wrap' })}>
                 {LEGACY_PROPERTY_FACTS.map((fact) => (
                   <div key={fact.label} className={vstack({ alignItems: 'flex-start', gap: '0' })}>
                     <span className={css({ fontSize: '[16px]', lineHeight: '[22px]', fontWeight: '500', color: LEGACY_DARK })}>
@@ -2986,15 +3223,27 @@ function EnhancedMediaEmailPreview() {
           </span>
         </div>
 
-        <div className={hstack({ alignItems: 'stretch', flex: '1', overflow: 'hidden' })}>
+        <div
+          className={css({
+            display: 'flex',
+            flexDirection: 'column',
+            md: { flexDirection: 'row' },
+            alignItems: 'stretch',
+            flex: '1',
+            overflow: 'hidden',
+          })}
+        >
           {/* Message list */}
           <div
             className={css({
-              w: '320px',
+              w: { base: '100%', md: '320px' },
+              maxH: { base: '200px', md: 'none' },
               flexShrink: 0,
               overflowY: 'auto',
-              borderRightWidth: '100',
+              borderRightWidth: { base: '0', md: '100' },
               borderRightStyle: 'solid',
+              borderBottomWidth: { base: '100', md: '0' },
+              borderBottomStyle: 'solid',
               borderColor: 'border.base',
             })}
           >
@@ -3060,7 +3309,7 @@ function EnhancedMediaEmailPreview() {
               className={vstack({
                 alignItems: 'flex-start',
                 gap: '300',
-                px: '700',
+                px: { base: '400', md: '700' },
                 py: '600',
                 borderBottomWidth: '100',
                 borderBottomStyle: 'solid',
@@ -3098,7 +3347,14 @@ function EnhancedMediaEmailPreview() {
             {/* Email body — constrained to the original design width, centered in the pane */}
             <div className={vstack({ alignItems: 'center', w: '100%' })}>
             <div className={css({ w: '100%', maxW: '600px' })}>
-            <div className={vstack({ alignItems: 'center', gap: '700', py: '1400' })}>
+            <div
+              className={vstack({
+                alignItems: 'center',
+                gap: '700',
+                px: { base: '400', md: '700' },
+                py: { base: '700', md: '1400' },
+              })}
+            >
           <LogoRealtorProDefault className={css({ h: '32px', display: 'block' })} />
 
           <div className={vstack({ alignItems: 'flex-start', gap: '500', w: '100%' })}>
@@ -3154,8 +3410,8 @@ function EnhancedMediaEmailPreview() {
             bg: 'bg.inverse',
             color: 'text.inverse',
             w: '100%',
-            px: '700',
-            py: '900',
+            px: { base: '400', md: '700' },
+            py: { base: '600', md: '900' },
           })}
         >
           <div className={vstack({ alignItems: 'center', gap: '500', w: '100%', maxW: '600px' })}>
@@ -3166,7 +3422,7 @@ function EnhancedMediaEmailPreview() {
 
           <div className={vstack({ alignItems: 'center', gap: '300', mt: '400' })}>
             <span className={css({ textStyle: 'bodySm' })}>901 E 6th St, Austin, TX 78702</span>
-            <div className={hstack({ gap: '300' })}>
+            <div className={hstack({ gap: '300', flexWrap: 'wrap', justifyContent: 'center' })}>
               <span className={css({ textStyle: 'bodySm', textDecoration: 'underline' })}>
                 Terms of Use
               </span>
@@ -3230,6 +3486,7 @@ export default function Shell() {
   const [experience, setExperience] = useState<Experience>('team')
   const [navPanelOpen, setNavPanelOpen] = useState(false)
   const [sidebarPage, setSidebarPage] = useState<SidebarPage>('all-listings')
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const handleSidebarNavigate = (page: SidebarPage) => {
     setSidebarPage(page)
@@ -3246,6 +3503,7 @@ export default function Shell() {
     setSidebarPage('all-listings')
     setExperience('team')
     setNavPanelOpen(false)
+    setMobileNavOpen(false)
   }
 
   const selectedListing =
@@ -3281,7 +3539,7 @@ export default function Shell() {
 
   if (experience !== 'team') {
     return (
-      <div className={css({ minW: '1280px', minH: '100dvh', bg: 'bg.base' })}>
+      <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
         {experience === 'agent' ? (
           <EnhancedMediaEmailPreview />
         ) : (
@@ -3305,17 +3563,28 @@ export default function Shell() {
   }
 
   return (
-    <div className={css({ minW: '1280px', minH: '100dvh', bg: 'bg.base' })}>
-      <TopBar />
+    <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
+      <TopBar onMenuClick={showSidebar ? () => setMobileNavOpen(true) : undefined} />
       {showSidebar && (
-        <Sidebar
-          activePage={view.page === 'list' ? 'all-listings' : sidebarPage}
-          onNavigate={handleSidebarNavigate}
-        />
+        <>
+          <Sidebar
+            activePage={view.page === 'list' ? 'all-listings' : sidebarPage}
+            onNavigate={handleSidebarNavigate}
+          />
+          <MobileSidebarDrawer
+            open={mobileNavOpen}
+            onClose={() => setMobileNavOpen(false)}
+            activePage={view.page === 'list' ? 'all-listings' : sidebarPage}
+            onNavigate={handleSidebarNavigate}
+          />
+        </>
       )}
       <main
-        className={css({ pt: HEADER_HEIGHT })}
-        style={{ marginLeft: showSidebar ? SIDEBAR_WIDTH : '0' }}
+        className={css({
+          pt: HEADER_HEIGHT,
+          ml: '0',
+          md: { ml: showSidebar ? SIDEBAR_WIDTH : '0' },
+        })}
       >
         {view.page === 'photo-upload' && selectedListing ? (
           <PhotoUploadScreen
@@ -3336,7 +3605,14 @@ export default function Shell() {
             }}
           />
         ) : (
-          <div className={css({ maxW: '1140px', mx: 'auto', px: '700', py: '700' })}>
+          <div
+            className={css({
+              maxW: '1140px',
+              mx: 'auto',
+              px: { base: '400', sm: '600', md: '700' },
+              py: { base: '500', md: '700' },
+            })}
+          >
             {view.page === 'list' && (
               <AllListingsScreen
                 listings={listings}
