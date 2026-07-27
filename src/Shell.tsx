@@ -2094,9 +2094,11 @@ function OverviewScreen({ onNext }: { onNext: () => void }) {
             consumer experience. By giving team admins an easy way to upload listing photos on
             behalf of their agents from RPD (RealPro Dashboard), and automatically optimizing them
             into premium enhanced media, we close the visual gap with top competitor listings and
-            give buyers a reason to stop scrolling. In this first iteration, uploading is a team
-            admin capability; agents view the results from their Pro Dashboard, with self-serve
-            agent upload planned as a later phase.
+            give buyers a reason to stop scrolling.
+          </p>
+          <p className={css({ textStyle: 'bodyLg', fontWeight: 'bold', color: 'text.base' })}>
+            In this first iteration, uploading is a team admin capability; agents view the results
+            from their Pro Dashboard, with self-serve agent upload planned as a later phase.
           </p>
         </div>
       </Card>
