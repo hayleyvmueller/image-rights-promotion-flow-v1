@@ -1819,10 +1819,6 @@
     justify-content: flex-end;
 }
 
-  .jc_flex-start {
-    justify-content: flex-start;
-}
-
   .c_\[\#48566c\] {
     color: #48566c;
 }
@@ -2373,6 +2369,10 @@
     align-self: flex-start;
 }
 
+  .jc_flex-start {
+    justify-content: flex-start;
+}
+
   .grid-tc_1fr {
     grid-template-columns: 1fr;
 }
@@ -2735,6 +2735,10 @@
 
   .pb_1200 {
     padding-bottom: var(--spacing-1200);
+}
+
+  .pl_0 {
+    padding-left: var(--spacing-0);
 }
 
   .mt_600 {
@@ -3162,10 +3166,6 @@
 
   .pr_500 {
     padding-right: var(--spacing-500);
-}
-
-  .pl_0 {
-    padding-left: var(--spacing-0);
 }
 
   .max-h_330px {

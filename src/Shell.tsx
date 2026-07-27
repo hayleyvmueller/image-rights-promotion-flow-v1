@@ -2155,7 +2155,7 @@ const EXPECTATIONS_DETAILS = [
   },
 ]
 
-function ExpectationsScreen({ onBack }: { onBack: () => void }) {
+function ExpectationsScreen({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   return (
     <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
       <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
@@ -2202,9 +2202,72 @@ function ExpectationsScreen({ onBack }: { onBack: () => void }) {
         </div>
       </Card>
 
-      <div className={hstack({ justifyContent: 'flex-start' })}>
+      <div className={hstack({ justifyContent: 'space-between' })}>
         <Button styleType="Tertiary" size="lg" startIcon={<IconArrowLeft size={3} />} onClick={onBack}>
           Back
+        </Button>
+        <Button styleType="Primary" size="lg" endIcon={<IconArrowRight size={3} />} onClick={onNext}>
+          Next
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+const TOC_FEATURE_WALKTHROUGHS = [
+  'Team admin (RPD) — promote listing → add enhanced media → photo upload & image rights consent',
+  'Team admin (RPD) — listing details (photo source, "Enhanced" badge, manage media)',
+  'Participating agent (Pro Dashboard) — enhanced media notification & listing details view',
+]
+
+function TocScreen({ onBack, onStart }: { onBack: () => void; onStart: () => void }) {
+  return (
+    <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
+      <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+        Table of Contents
+      </h1>
+
+      <Card className={css({ px: { base: '400', lg: '800' }, py: { base: '500', lg: '700' } })}>
+        <div className={vstack({ alignItems: 'flex-start', gap: '400' })}>
+          <h2 className={css({ textStyle: 'headingMd', fontWeight: 'bold', color: 'text.base' })}>
+            Spotlight Listings — Photo Upload &amp; Image Rights
+          </h2>
+
+          <div className={vstack({ alignItems: 'flex-start', gap: '300', w: '100%' })}>
+            <h3 className={css({ textStyle: 'headingSm', fontWeight: 'bold', color: 'text.base' })}>
+              Feature walkthroughs
+            </h3>
+            <ol className={vstack({ alignItems: 'stretch', gap: '300', w: '100%', pl: '0' })}>
+              {TOC_FEATURE_WALKTHROUGHS.map((item, i) => (
+                <li key={item} className={hstack({ gap: '400', alignItems: 'flex-start' })}>
+                  <span
+                    className={css({
+                      flexShrink: 0,
+                      textStyle: 'bodyMd',
+                      fontWeight: 'bold',
+                      color: 'text.base',
+                    })}
+                  >
+                    {i + 1}.
+                  </span>
+                  <span className={css({ textStyle: 'bodyMd', color: 'text.base' })}>{item}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <h3 className={css({ textStyle: 'headingSm', fontWeight: 'bold', color: 'text.base' })}>
+            Recap + next steps
+          </h3>
+        </div>
+      </Card>
+
+      <div className={hstack({ justifyContent: 'space-between' })}>
+        <Button styleType="Tertiary" size="lg" startIcon={<IconArrowLeft size={3} />} onClick={onBack}>
+          Back
+        </Button>
+        <Button styleType="Primary" size="lg" onClick={onStart}>
+          Start prototype
         </Button>
       </div>
     </div>
@@ -3660,7 +3723,7 @@ export default function Shell() {
   const [navPanelOpen, setNavPanelOpen] = useState(false)
   const [sidebarPage, setSidebarPage] = useState<SidebarPage>('all-listings')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
-  const [overviewStep, setOverviewStep] = useState<'overview' | 'expectations'>('overview')
+  const [overviewStep, setOverviewStep] = useState<'overview' | 'expectations' | 'toc'>('overview')
 
   const handleSidebarNavigate = (page: SidebarPage) => {
     setSidebarPage(page)
@@ -3732,8 +3795,16 @@ export default function Shell() {
               >
                 {overviewStep === 'overview' ? (
                   <OverviewScreen onNext={() => setOverviewStep('expectations')} />
+                ) : overviewStep === 'expectations' ? (
+                  <ExpectationsScreen
+                    onBack={() => setOverviewStep('overview')}
+                    onNext={() => setOverviewStep('toc')}
+                  />
                 ) : (
-                  <ExpectationsScreen onBack={() => setOverviewStep('overview')} />
+                  <TocScreen
+                    onBack={() => setOverviewStep('expectations')}
+                    onStart={() => handleSelectExperience('team')}
+                  />
                 )}
               </div>
             </main>
