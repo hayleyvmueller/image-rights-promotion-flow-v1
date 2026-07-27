@@ -625,9 +625,9 @@ function Completeness({ value, color }: { value: number; color: CompletenessColo
 
 function SortableHeader({ label }: { label: string }) {
   return (
-    <span className={hstack({ gap: '200', alignItems: 'center' })}>
+    <span className={hstack({ gap: '200', alignItems: 'center', whiteSpace: 'nowrap' })}>
       <span>{label}</span>
-      <span className={css({ color: 'text.alternate', display: 'inline-flex' })}>
+      <span className={css({ color: 'text.alternate', display: 'inline-flex', flexShrink: 0 })}>
         <IconSort size={2} />
       </span>
     </span>
@@ -818,10 +818,10 @@ function AllListingsScreen({
                 {/* List date */}
                 <Table.Cell>
                   <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
-                    <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base' })}>
+                    <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base', whiteSpace: 'nowrap' })}>
                       {l.listDate}
                     </span>
-                    <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                    <span className={css({ textStyle: 'bodySm', color: 'text.alternate', whiteSpace: 'nowrap' })}>
                       {l.daysAgo}
                     </span>
                   </div>
@@ -1091,10 +1091,10 @@ function PromoteListingsScreen({
                 {/* List date */}
                 <Table.Cell>
                   <div className={vstack({ alignItems: 'flex-start', gap: '0' })}>
-                    <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base' })}>
+                    <span className={css({ textStyle: 'bodySm', fontWeight: 'medium', color: 'text.base', whiteSpace: 'nowrap' })}>
                       {l.listDate}
                     </span>
-                    <span className={css({ textStyle: 'bodySm', color: 'text.alternate' })}>
+                    <span className={css({ textStyle: 'bodySm', color: 'text.alternate', whiteSpace: 'nowrap' })}>
                       {l.daysAgo}
                     </span>
                   </div>
