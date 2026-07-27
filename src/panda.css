@@ -1639,6 +1639,10 @@
     aspect-ratio: 3 / 2;
 }
 
+  .cursor_grab {
+    cursor: grab;
+}
+
   .outline-style_solid {
     outline-style: solid;
 }
@@ -1649,10 +1653,6 @@
 
   .ring-o_2px {
     outline-offset: 2px;
-}
-
-  .cursor_grab {
-    cursor: grab;
 }
 
   .bx-sh_dialog {
@@ -2849,12 +2849,12 @@
     width: 190px;
 }
 
-  .top_200 {
-    top: var(--spacing-200);
+  .bottom_200 {
+    bottom: var(--spacing-200);
 }
 
-  .left_200 {
-    left: var(--spacing-200);
+  .right_200 {
+    right: var(--spacing-200);
 }
 
   .w_32px {
@@ -2863,14 +2863,6 @@
 
   .h_32px {
     height: 32px;
-}
-
-  .bottom_200 {
-    bottom: var(--spacing-200);
-}
-
-  .right_200 {
-    right: var(--spacing-200);
 }
 
   .min-h_100dvh {

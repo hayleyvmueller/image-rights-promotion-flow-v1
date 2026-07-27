@@ -38,7 +38,6 @@ import {
   IconMoreFilled,
   IconEdit,
   IconDelete,
-  IconDrag,
   IconCalendar,
   IconBarChart,
   IconOpen,
@@ -1323,6 +1322,12 @@ function PhotoThumbnail({
 }) {
   return (
     <div
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = 'move'
+        onDragStart(index)
+      }}
+      onDragEnd={onDragEnd}
       onDragOver={(e) => {
         e.preventDefault()
         onDragOver(index)
@@ -1339,6 +1344,7 @@ function PhotoThumbnail({
         overflow: 'hidden',
         bg: 'bg.alternate',
         flexShrink: 0,
+        cursor: 'grab',
         opacity: isDragging ? '0.4' : '1',
         outlineWidth: isDropTarget ? '3px' : '0px',
         outlineStyle: 'solid',
@@ -1354,30 +1360,9 @@ function PhotoThumbnail({
         className={css({ w: '100%', h: '100%', objectFit: 'cover', display: 'block' })}
       />
       <div
-        draggable
-        onDragStart={(e) => {
-          e.dataTransfer.effectAllowed = 'move'
-          onDragStart(index)
-        }}
-        onDragEnd={onDragEnd}
-        className={css({
-          position: 'absolute',
-          top: '200',
-          left: '200',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          w: '32px',
-          h: '32px',
-          borderRadius: '500',
-          bg: 'bg.inverse',
-          color: 'text.inverse',
-          cursor: 'grab',
-        })}
+        draggable={false}
+        className={css({ position: 'absolute', bottom: '200', right: '200' })}
       >
-        <IconDrag size={2} />
-      </div>
-      <div className={css({ position: 'absolute', bottom: '200', right: '200' })}>
         <Menu width={180} placement="bottom-end" disableAutoFlip portalRoot={document.body}>
           <Menu.Toggle>
             <button
