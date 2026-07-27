@@ -2941,6 +2941,10 @@
     padding-top: 72px;
 }
 
+  .mt_100 {
+    margin-top: var(--spacing-100);
+}
+
   .mt_300 {
     margin-top: var(--spacing-300);
 }
@@ -3025,10 +3029,6 @@
     max-height: 200px;
 }
 
-  .mt_100 {
-    margin-top: var(--spacing-100);
-}
-
   .ml_auto {
     margin-left: var(--spacing-auto);
 }
@@ -3041,12 +3041,12 @@
     min-width: 320px;
 }
 
-  .ml_0 {
-    margin-left: var(--spacing-0);
-}
-
   .max-w_1140px {
     max-width: 1140px;
+}
+
+  .ml_0 {
+    margin-left: var(--spacing-0);
 }
 
   .mt_200 {
@@ -6538,6 +6538,12 @@
 }
 
   @media screen and (min-width: 80rem) {
+    .lg\:px_800 {
+      padding-inline: var(--spacing-800);
+}
+    .lg\:py_700 {
+      padding-block: var(--spacing-700);
+}
     .lg\:grid-tc_\[var\(--geo-cols-lg\)\] {
       grid-template-columns: var(--geo-cols-lg);
 }

@@ -57,6 +57,7 @@ import {
   IconInfo,
   IconProfile,
   IconRefreshCw,
+  IconLock,
   LogoRealtorProDefault,
   LogoBrandWhite,
   LogoBrand,
@@ -2038,6 +2039,98 @@ function PlaceholderExperience({ label }: { label: string }) {
   )
 }
 
+// ─── Overview screen ────────────────────────────────────────────────────────────
+
+const OVERVIEW_DETAILS = [
+  {
+    icon: <IconMagicWand size={3} />,
+    title: 'A more premium consumer experience',
+    description:
+      'Automatic conservative optimization (lighting, color, geometry) is on by default, so every promoted listing looks its best without any extra work from the agent.',
+  },
+  {
+    icon: <IconUsers size={3} />,
+    title: 'Team-managed uploads',
+    description:
+      "Team admins can add photos on behalf of their agents right from the All Listings table in RPD, right after promoting a listing—and then choose to enhance that media so quality photos ship without waiting on each individual agent.",
+  },
+  {
+    icon: <IconLock size={3} />,
+    title: 'Rights handled up front',
+    description:
+      "A simple consent step confirms the uploader is the copyright owner or authorized licensee of every photo before it's optimized or published, giving Legal a defensible, auditable record.",
+  },
+  {
+    icon: <IconRefreshCw size={3} />,
+    title: 'Control over enhancement display',
+    description:
+      "Enhanced media can be turned off—or back on—in one simple step, so team admins can adjust how a listing looks at any time. Note for this MVP: toggling off does not delete or regenerate the underlying enhanced media—RDC retains the legal rights to all photos uploaded, even once deleted, so this control only affects whether the enhanced version displays in the consumer experience, not whether it's recreated.",
+  },
+  {
+    icon: <IconNotifications size={3} />,
+    title: 'Transparent to agents',
+    description:
+      'Agents are notified by email whenever their team adds enhanced media, and can see photo source ("Current photo source: Team upload") on their Listing Details page.',
+  },
+]
+
+function OverviewScreen() {
+  return (
+    <div className={vstack({ alignItems: 'stretch', gap: '700' })}>
+      <h1 className={css({ textStyle: 'headingLg', fontWeight: 'bold', color: 'text.base' })}>
+        Overview
+      </h1>
+
+      <Card className={css({ px: { base: '400', lg: '800' }, py: { base: '500', lg: '700' } })}>
+        <div className={vstack({ alignItems: 'flex-start', gap: '400' })}>
+          <h2 className={css({ textStyle: 'headingMd', fontWeight: 'bold', color: 'text.base' })}>
+            Spotlight Listings — Photo Upload &amp; Image Rights
+          </h2>
+          <p className={css({ textStyle: 'bodyLg', color: 'text.alternate' })}>
+            Our goal is to make every promoted listing stand out with a richer, more immersive
+            consumer experience. By giving team admins an easy way to upload listing photos on
+            behalf of their agents from RPD (RealPro Dashboard), and automatically optimizing them
+            into premium enhanced media, we close the visual gap with top competitor listings and
+            give buyers a reason to stop scrolling. In this first iteration, uploading is a team
+            admin capability; agents view the results from their Pro Dashboard, with self-serve
+            agent upload planned as a later phase.
+          </p>
+        </div>
+      </Card>
+
+      <Card className={css({ px: { base: '400', lg: '800' }, py: { base: '500', lg: '700' } })}>
+        <div className={vstack({ alignItems: 'flex-start', gap: '600' })}>
+          <h2 className={css({ textStyle: 'headingMd', fontWeight: 'bold', color: 'text.base' })}>
+            Important details
+          </h2>
+          <div className={vstack({ alignItems: 'stretch', gap: '600', w: '100%' })}>
+            {OVERVIEW_DETAILS.map((detail) => (
+              <div
+                key={detail.title}
+                className={hstack({ gap: '400', alignItems: 'flex-start' })}
+              >
+                <div
+                  className={css({
+                    flexShrink: 0,
+                    color: 'text.base',
+                    display: 'inline-flex',
+                    mt: '100',
+                  })}
+                >
+                  {detail.icon}
+                </div>
+                <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+                  <strong>{detail.title}:</strong> {detail.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
 // ─── Agent experience: enhanced media email preview ──────────────────────────────
 
 const INBOX_MESSAGES = [
@@ -3542,6 +3635,22 @@ export default function Shell() {
       <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
         {experience === 'agent' ? (
           <EnhancedMediaEmailPreview />
+        ) : experience === 'overview' ? (
+          <>
+            <TopBar />
+            <main className={css({ pt: HEADER_HEIGHT })}>
+              <div
+                className={css({
+                  maxW: '1140px',
+                  mx: 'auto',
+                  px: { base: '400', sm: '600', md: '700' },
+                  py: { base: '500', md: '700' },
+                })}
+              >
+                <OverviewScreen />
+              </div>
+            </main>
+          </>
         ) : (
           <>
             <TopBar />
