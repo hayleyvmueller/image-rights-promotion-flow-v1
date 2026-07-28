@@ -3806,6 +3806,11 @@ export default function Shell() {
   const [overviewStep, setOverviewStep] = useState<'overview' | 'expectations' | 'toc'>('overview')
   const [previewSize, setPreviewSize] = useState<PreviewSize>('web')
 
+  // When DevicePreviewFrame embeds the app in its own iframe to simulate a
+  // device size, that inner copy would otherwise render its own switcher on
+  // top of the outer page's — only the outer page's should ever show one.
+  const isEmbeddedPreview = typeof window !== 'undefined' && window.self !== window.top
+
   const handleSidebarNavigate = (page: SidebarPage) => {
     setSidebarPage(page)
     if (page === 'all-listings') setView({ page: 'list' })
@@ -3903,16 +3908,20 @@ export default function Shell() {
         )}
       </div>
       </DevicePreviewFrame>
-      <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
-      <ExperienceNavPanel
-        open={navPanelOpen}
-        experience={experience}
-        onClose={() => setNavPanelOpen(false)}
-        onSelect={handleSelectExperience}
-        onReset={handleResetPrototype}
-        previewSize={previewSize}
-        onSelectPreviewSize={setPreviewSize}
-      />
+      {!isEmbeddedPreview && (
+        <>
+          <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
+          <ExperienceNavPanel
+            open={navPanelOpen}
+            experience={experience}
+            onClose={() => setNavPanelOpen(false)}
+            onSelect={handleSelectExperience}
+            onReset={handleResetPrototype}
+            previewSize={previewSize}
+            onSelectPreviewSize={setPreviewSize}
+          />
+        </>
+      )}
       </>
     )
   }
@@ -4032,16 +4041,20 @@ export default function Shell() {
 
     </div>
     </DevicePreviewFrame>
-    <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
-    <ExperienceNavPanel
-      open={navPanelOpen}
-      experience={experience}
-      onClose={() => setNavPanelOpen(false)}
-      onSelect={handleSelectExperience}
-      onReset={handleResetPrototype}
-      previewSize={previewSize}
-      onSelectPreviewSize={setPreviewSize}
-    />
+    {!isEmbeddedPreview && (
+      <>
+        <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
+        <ExperienceNavPanel
+          open={navPanelOpen}
+          experience={experience}
+          onClose={() => setNavPanelOpen(false)}
+          onSelect={handleSelectExperience}
+          onReset={handleResetPrototype}
+          previewSize={previewSize}
+          onSelectPreviewSize={setPreviewSize}
+        />
+      </>
+    )}
     </>
   )
 }
