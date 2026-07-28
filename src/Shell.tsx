@@ -1838,6 +1838,60 @@ function PromoteModal({
   )
 }
 
+// ─── Authorization and Release document ──────────────────────────────────────────
+
+const AUTHORIZATION_RELEASE_SECTIONS = [
+  {
+    label: null,
+    body: 'By clicking that you "accept," "acknowledge," or "agree" to this Authorization and Release (or taking similar action), below, the undersigned ("You") hereby agrees as follows:',
+  },
+  {
+    label: 'License.',
+    body: 'You hereby grant to Move Sales, Inc. (operator of Realtor.com) and its affiliates, distributees, service providers, agents, and contractors (collectively, "Licensee") permission, on an irrevocable, worldwide, royalty-free and perpetual basis, and using any media, technology or methods it chooses, whether or not now known or invented (including, but not limited to, websites, mobile apps, social media, multi-media works, advertisements, publicity materials, products and services), to store, use, and display (including, but not limited to use for advertising, marketing, promotional and commercial purposes) any photograph, image, video, or other work You submit, provide, and/or upload to Licensee, including, but not limited to, any and all included or accompanying statements, images, records, files, audio, sound, voices, media, data, logos, names, software, utilities, text, links, features, tools, text, links and/or other content or materials of any kind (the "Content"). Such use may include, but is not limited to, copying, modifying, editing, making derivative works from, making compilations or other works that include, translating, adapting, performing and/or distributing the Content, and doing so in whole or in part, in combination with other works or elements, or otherwise.',
+  },
+  {
+    label: 'Release/Right of Publicity.',
+    body: 'If your name, image, likeness, voice or persona is perceptible in the Content, you hereby confirm, for the avoidance of doubt, that the use of such name, image, likeness, voice or persona is specifically intended to be included within the scope of the permissions and other terms provided for in the immediately preceding paragraph. Moreover, if the copyrighted work (including, without limitation, images) or other intellectual property of any person, or if the name, image, likeness, voice, or persona of any other person, or if the home or other property of any other person is included in, depicted in, or perceptible in the Content, you hereby confirm, for the avoidance of doubt, (i) that each such copyrighted work (including, without limitation, images) or other intellectual property, each name, image, likeness, voice, and/or persona, and each home or other property is, likewise, specifically intended to be included within the scope of the permissions and other terms provided for in the immediately preceding paragraph, and (ii) that you have obtained the written, signed agreement of each such other person to the use of each such copyrighted work (including, without limitation, images) or other intellectual property, each name, image, likeness, voice, and/or persona, and each home or other property, to the same extent as set forth in such permissions and other terms provided for in such preceding paragraph.',
+  },
+  {
+    label: 'Indemnification.',
+    body: "You agree to indemnify, defend, and hold harmless Licensee and its officers, directors, employees, agents, successors, and assigns from and against any and all losses, liabilities, damages, costs, and expenses (including reasonable attorneys' fees and court costs) arising out of or relating to any third-party claim, demand, action, or proceeding regarding the Content, including, without limitation, any claim by any photographer or other person claiming to have rights in or to the Content, and any claim arising out of or related to any breach of Your representations, warranties, or other obligations under this Authorization and Release.",
+  },
+  {
+    label: 'Other Commitments.',
+    body: "You represent that any photographs, images, videos, or other Content you submit are either (a) exclusively and in their entirety your own original creation(s), or (b) owned by you or licensed to you under terms sufficiently broad to permit you to grant all rights and make all commitments set forth in this Authorization and Release. You further represent that your provision of any photographs, images, videos, or other Content to Licensee (including, without limitation, your submission of it), your granting of any rights granted herein with respect to any such photographs, images, videos, or other Content, and Licensee's use of any such photographs, images, videos, or other Content as permitted herein will not violate any copyright right or other intellectual property right of, or defame, libel, or violate any right of publicity or privacy or other right of, any person or entity, will not breach any contract or obligation to which you are subject or a party, and will comply with all applicable laws and regulations. You represent that you have all rights, consents, status and authority necessary to grant the rights and make the commitments, representations and other agreements contained in this Authorization and Release. You are entering into this Authorization and Release in consideration of the possibility(ies) of exposure for certain Content, of furthering goodwill between you and Licensee, and/or of furthering your reputation and/or experience, but you agree that Licensee is under no obligation to actually use any Content, and you further agree that you will be entitled to no monetary or other compensation except as may be expressly set forth to the contrary in this document and you hereby waive and release all claims you might now or hereafter have regarding Licensee's use of any Content. You agree that this paragraph applies just as fully to the results of Licensee's use (if any) of Content you provide, or cause to be provided, to Licensee as it does to such Content itself; but this sentence shall not imply that you have or obtain any rights in such results that you do not actually have or obtain under applicable law.",
+  },
+  {
+    label: null,
+    body: 'This Authorization and Release is binding on your successors and assigns, and it shall inure to the benefit of Licensee and its successors and assigns. This Authorization and Release will be governed by and construed in accordance with the laws of the State of Texas (excluding conflicts of laws rules).',
+  },
+]
+
+function AuthorizationReleaseModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  return (
+    <Modal open={open} onClose={onClose} size="md" mobileLayout="fullScreen">
+      <Modal.Header title="Authorization and Release" />
+      <Modal.Body>
+        <div className={vstack({ alignItems: 'stretch', gap: '500' })}>
+          {AUTHORIZATION_RELEASE_SECTIONS.map((section, i) => (
+            <p key={i} className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
+              {section.label && <strong>{section.label} </strong>}
+              {section.body}
+            </p>
+          ))}
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <div className={hstack({ justifyContent: 'flex-end', w: '100%' })}>
+          <Button styleType="Primary" size="lg" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </Modal.Footer>
+    </Modal>
+  )
+}
+
 // ─── Save images consent modal ───────────────────────────────────────────────────
 
 function SaveImagesModal({
@@ -1852,6 +1906,7 @@ function SaveImagesModal({
   onConfirm: () => void
 }) {
   const [agreed, setAgreed] = useState(false)
+  const [showAuthDoc, setShowAuthDoc] = useState(false)
 
   const handleClose = () => {
     setAgreed(false)
@@ -1864,80 +1919,66 @@ function SaveImagesModal({
   }
 
   return (
-    <Modal open={open} onClose={handleClose} mobileLayout="fullScreen">
-      <Modal.Header title="Allow Realtor.com to enhance your photos" />
-      <Modal.Body>
-        <div className={vstack({ alignItems: 'stretch', gap: '600' })}>
-          <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
-            To publish your custom photos with immersive media, we need to ensure you are the
-            copyright owner or authorized licensee of your photos.
-          </p>
-
-          <div
-            className={vstack({
-              alignItems: 'flex-start',
-              gap: '400',
-              bg: 'bg.alternate',
-              borderRadius: '300',
-              p: '600',
-            })}
-          >
-            <span className={css({ textStyle: 'bodyMd', fontWeight: 'bold', color: 'text.base' })}>
-              Terms &amp; Conditions
-            </span>
-            <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
-              By accepting, you grant Realtor.com a non-exclusive, worldwide, royalty free license
-              to use, reproduce, display, and create derivative works of the photos you upload{' '}
-              <strong>solely to produce and display enhanced media on your listing details page.</strong>
-            </p>
-            <p className={css({ textStyle: 'bodyMd', color: 'text.base' })}>
-              You retain full ownership of your original photos. You may revoke this permission at
-              any time from your listing edit page. Full terms available in our{' '}
-              <Link href="#" underline="default" size="inline">
-                Photo License Agreement.
+    <>
+      <Modal open={open} onClose={handleClose} mobileLayout="fullScreen">
+        <Modal.Header title="Confirm Authorization and Release" />
+        <Modal.Body>
+          <div className={vstack({ alignItems: 'stretch', gap: '600' })}>
+            <p className={css({ textStyle: 'bodyLg', color: 'text.base' })}>
+              Before you upload. Photos you submit are governed by our{' '}
+              <Link
+                onClick={() => setShowAuthDoc(true)}
+                underline="default"
+                size="inline"
+              >
+                Authorization and Release
               </Link>
+              . By accepting the Authorization and Release, you confirm you own or have permission
+              to provide the photos to Realtor.com and to authorize use of the photos as set forth
+              in the Authorization and Release.
             </p>
-          </div>
 
-          <div
-            className={css({
-              borderWidth: '100',
-              borderStyle: 'solid',
-              borderColor: 'border.base',
-              borderRadius: '300',
-              p: '500',
-            })}
-          >
-            <Checkbox checked={agreed} onChange={(_, checked) => setAgreed(checked)}>
-              I confirm that I am the copyright owner or authorized licensee of all photos I am
-              uploading.
-            </Checkbox>
-          </div>
+            <div
+              className={css({
+                borderWidth: '100',
+                borderStyle: 'solid',
+                borderColor: 'border.base',
+                borderRadius: '300',
+                p: '500',
+              })}
+            >
+              <Checkbox checked={agreed} onChange={(_, checked) => setAgreed(checked)}>
+                I have read and agree to the Authorization and Release
+              </Checkbox>
+            </div>
 
-          <InlineMessage styleType="warning">
-            If you deny permission, your photos will not be uploaded.
-          </InlineMessage>
-        </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <div className={hstack({ gap: '400', justifyContent: 'flex-end', w: '100%' })}>
-          <Button styleType="Ghost" onClick={handleDeny}>
-            Deny permission
-          </Button>
-          <Button
-            styleType="Primary"
-            size="lg"
-            disabled={!agreed}
-            onClick={() => {
-              setAgreed(false)
-              onConfirm()
-            }}
-          >
-            Save photos
-          </Button>
-        </div>
-      </Modal.Footer>
-    </Modal>
+            <InlineMessage styleType="warning">
+              If you deny permission, your photos will not be uploaded.
+            </InlineMessage>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <div className={hstack({ gap: '400', justifyContent: 'flex-end', w: '100%' })}>
+            <Button styleType="Ghost" onClick={handleDeny}>
+              Deny permission
+            </Button>
+            <Button
+              styleType="Primary"
+              size="lg"
+              disabled={!agreed}
+              onClick={() => {
+                setAgreed(false)
+                onConfirm()
+              }}
+            >
+              Save photos
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      <AuthorizationReleaseModal open={showAuthDoc} onClose={() => setShowAuthDoc(false)} />
+    </>
   )
 }
 

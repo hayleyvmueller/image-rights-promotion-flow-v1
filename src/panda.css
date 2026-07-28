@@ -830,14 +830,6 @@
     --modal-width: 936px;
 }
 
-  .bg_bg\.alternate {
-    background: var(--colors-bg-alternate);
-}
-
-  .p_600 {
-    padding: var(--spacing-600);
-}
-
   .bg_bg\.inverse {
     background: var(--colors-bg-inverse);
 }
@@ -852,6 +844,10 @@
 
   .bg_status\.error {
     background: var(--colors-status-error);
+}
+
+  .bg_bg\.alternate {
+    background: var(--colors-bg-alternate);
 }
 
   .p_500 {
@@ -928,6 +924,10 @@
 
   .bg_alpha\.300 {
     background: var(--colors-alpha-300);
+}
+
+  .p_600 {
+    padding: var(--spacing-600);
 }
 
   .bg_\[linear-gradient\(270deg\,_token\(colors\.bg\.base\)_0\%\,_transparent_100\%\)\] {
@@ -1094,10 +1094,6 @@
     padding-block: var(--spacing-500);
 }
 
-  .bdr_300 {
-    border-radius: var(--radii-300);
-}
-
   .py_600 {
     padding-block: var(--spacing-600);
 }
@@ -1132,6 +1128,10 @@
 
   .bd-c_bg\.base {
     border-color: var(--colors-bg-base);
+}
+
+  .bdr_300 {
+    border-radius: var(--radii-300);
 }
 
   .ov_hidden {
