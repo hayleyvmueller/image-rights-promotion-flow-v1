@@ -1619,12 +1619,12 @@
     color: var(--colors-text-alternate);
 }
 
-  .obj-f_cover {
-    object-fit: cover;
-}
-
   .white-space_nowrap {
     white-space: nowrap;
+}
+
+  .obj-f_cover {
+    object-fit: cover;
 }
 
   .tov_ellipsis {

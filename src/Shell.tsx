@@ -726,9 +726,14 @@ function AllListingsScreen({
           </div>
 
           <div className={css({ overflowX: 'auto', maxW: '100%' })}>
-            <ContentSwitch size="lg">
+            <ContentSwitch size="lg" className={css({ flexShrink: 0 })}>
               {SEGMENTS.map((s) => (
-                <ContentSwitch.Item key={s} selected={segment === s} onClick={() => setSegment(s)}>
+                <ContentSwitch.Item
+                  key={s}
+                  selected={segment === s}
+                  onClick={() => setSegment(s)}
+                  className={css({ whiteSpace: 'nowrap', flexShrink: 0 })}
+                >
                   {s}
                 </ContentSwitch.Item>
               ))}
