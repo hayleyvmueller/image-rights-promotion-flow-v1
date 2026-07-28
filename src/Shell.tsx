@@ -3859,6 +3859,7 @@ export default function Shell() {
 
   if (experience !== 'team') {
     return (
+      <>
       <DevicePreviewFrame size={previewSize}>
       <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
         {experience === 'agent' ? (
@@ -3899,22 +3900,24 @@ export default function Shell() {
             />
           </>
         )}
-        <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
-        <ExperienceNavPanel
-          open={navPanelOpen}
-          experience={experience}
-          onClose={() => setNavPanelOpen(false)}
-          onSelect={handleSelectExperience}
-          onReset={handleResetPrototype}
-          previewSize={previewSize}
-          onSelectPreviewSize={setPreviewSize}
-        />
       </div>
       </DevicePreviewFrame>
+      <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
+      <ExperienceNavPanel
+        open={navPanelOpen}
+        experience={experience}
+        onClose={() => setNavPanelOpen(false)}
+        onSelect={handleSelectExperience}
+        onReset={handleResetPrototype}
+        previewSize={previewSize}
+        onSelectPreviewSize={setPreviewSize}
+      />
+      </>
     )
   }
 
   return (
+    <>
     <DevicePreviewFrame size={previewSize}>
     <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
       <TopBar onMenuClick={showSidebar ? () => setMobileNavOpen(true) : undefined} />
@@ -4026,17 +4029,18 @@ export default function Shell() {
         title="Your listing has been promoted and will begin later today."
       />
 
-      <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
-      <ExperienceNavPanel
-        open={navPanelOpen}
-        experience={experience}
-        onClose={() => setNavPanelOpen(false)}
-        onSelect={handleSelectExperience}
-        onReset={handleResetPrototype}
-        previewSize={previewSize}
-        onSelectPreviewSize={setPreviewSize}
-      />
     </div>
     </DevicePreviewFrame>
+    <ExperienceNavTrigger onClick={() => setNavPanelOpen(true)} />
+    <ExperienceNavPanel
+      open={navPanelOpen}
+      experience={experience}
+      onClose={() => setNavPanelOpen(false)}
+      onSelect={handleSelectExperience}
+      onReset={handleResetPrototype}
+      previewSize={previewSize}
+      onSelectPreviewSize={setPreviewSize}
+    />
+    </>
   )
 }
