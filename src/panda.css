@@ -6490,6 +6490,12 @@
     .md\:flex-d_row {
       flex-direction: row;
 }
+    .md\:jc_space-between {
+      justify-content: space-between;
+}
+    .md\:ai_center {
+      align-items: center;
+}
     .md\:asp_auto {
       aspect-ratio: auto;
 }

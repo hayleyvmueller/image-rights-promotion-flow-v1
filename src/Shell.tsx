@@ -703,7 +703,7 @@ function AllListingsScreen({
           className={css({
             display: 'flex',
             flexDirection: 'column',
-            sm: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+            md: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
             gap: '400',
             px: { base: '400', sm: '600' },
             pb: '500',
