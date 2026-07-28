@@ -1937,6 +1937,62 @@ const EXPERIENCES: { id: Experience; label: string; icon: React.ReactNode }[] = 
   { id: 'agent', label: 'Agent experience', icon: <IconAgent size={3} /> },
 ]
 
+type PreviewSize = 'web' | 'ipad' | 'mobile'
+
+const PREVIEW_SIZES: { id: PreviewSize; label: string }[] = [
+  { id: 'web', label: 'Web' },
+  { id: 'ipad', label: 'iPad' },
+  { id: 'mobile', label: 'Mobile web' },
+]
+
+function DevicePreviewFrame({
+  size,
+  children,
+}: {
+  size: PreviewSize
+  children: React.ReactNode
+}) {
+  if (size === 'web') return <>{children}</>
+
+  const width = size === 'mobile' ? 375 : 768
+  const height = size === 'mobile' ? 812 : 1024
+
+  return (
+    <div
+      className={css({
+        minH: '100dvh',
+        bg: 'bg.alternate',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        p: '700',
+        overflow: 'auto',
+      })}
+    >
+      {/*
+        A real iframe (not a resized div) is required here: CSS media queries
+        evaluate against the actual browser viewport, not a container's width,
+        so only an iframe's own independent viewport makes the app's
+        responsive breakpoints (sidebar/hamburger, table columns, etc.)
+        actually respond to the simulated device size.
+      */}
+      <iframe
+        title={`Preview at ${size === 'mobile' ? 'mobile' : 'iPad'} size`}
+        src={window.location.href}
+        className={css({
+          maxH: '100%',
+          flexShrink: 0,
+          bg: 'bg.base',
+          borderRadius: '300',
+          boxShadow: 'dialog',
+          border: 'none',
+        })}
+        style={{ width, height }}
+      />
+    </div>
+  )
+}
+
 function ExperienceNavTrigger({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -1972,18 +2028,39 @@ function ExperienceNavPanel({
   onClose,
   onSelect,
   onReset,
+  previewSize,
+  onSelectPreviewSize,
 }: {
   open: boolean
   experience: Experience
   onClose: () => void
   onSelect: (experience: Experience) => void
   onReset: () => void
+  previewSize: PreviewSize
+  onSelectPreviewSize: (size: PreviewSize) => void
 }) {
   return (
     <Modal open={open} onClose={onClose} layout="drawer" drawerPosition="left" size="sm">
       <Modal.Header title="Prototype navigation" />
       <Modal.Body noPadding>
+        <div className={vstack({ alignItems: 'stretch', gap: '200', px: '500', py: '400' })}>
+          <span className={css({ textStyle: 'caption', color: 'text.alternate', fontWeight: 'bold' })}>
+            Preview size
+          </span>
+          <ContentSwitch size="sm" equalWidths>
+            {PREVIEW_SIZES.map((size) => (
+              <ContentSwitch.Item
+                key={size.id}
+                selected={previewSize === size.id}
+                onClick={() => onSelectPreviewSize(size.id)}
+              >
+                {size.label}
+              </ContentSwitch.Item>
+            ))}
+          </ContentSwitch>
+        </div>
         <ListBox>
+          <ListBox.Divider />
           {EXPERIENCES.map((exp) => (
             <ListBox.Item
               key={exp.id}
@@ -3721,6 +3798,7 @@ export default function Shell() {
   const [sidebarPage, setSidebarPage] = useState<SidebarPage>('all-listings')
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [overviewStep, setOverviewStep] = useState<'overview' | 'expectations' | 'toc'>('overview')
+  const [previewSize, setPreviewSize] = useState<PreviewSize>('web')
 
   const handleSidebarNavigate = (page: SidebarPage) => {
     setSidebarPage(page)
@@ -3739,6 +3817,7 @@ export default function Shell() {
     setNavPanelOpen(false)
     setMobileNavOpen(false)
     setOverviewStep('overview')
+    setPreviewSize('web')
   }
 
   const selectedListing =
@@ -3775,6 +3854,7 @@ export default function Shell() {
 
   if (experience !== 'team') {
     return (
+      <DevicePreviewFrame size={previewSize}>
       <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
         {experience === 'agent' ? (
           <EnhancedMediaEmailPreview />
@@ -3821,12 +3901,16 @@ export default function Shell() {
           onClose={() => setNavPanelOpen(false)}
           onSelect={handleSelectExperience}
           onReset={handleResetPrototype}
+          previewSize={previewSize}
+          onSelectPreviewSize={setPreviewSize}
         />
       </div>
+      </DevicePreviewFrame>
     )
   }
 
   return (
+    <DevicePreviewFrame size={previewSize}>
     <div className={css({ minW: '320px', minH: '100dvh', bg: 'bg.base' })}>
       <TopBar onMenuClick={showSidebar ? () => setMobileNavOpen(true) : undefined} />
       {showSidebar && (
@@ -3944,7 +4028,10 @@ export default function Shell() {
         onClose={() => setNavPanelOpen(false)}
         onSelect={handleSelectExperience}
         onReset={handleResetPrototype}
+        previewSize={previewSize}
+        onSelectPreviewSize={setPreviewSize}
       />
     </div>
+    </DevicePreviewFrame>
   )
 }
