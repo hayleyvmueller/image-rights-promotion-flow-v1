@@ -1982,6 +1982,7 @@ function DevicePreviewFrame({
         actually respond to the simulated device size.
       */}
       <iframe
+        key={size}
         title={`Preview at ${size === 'mobile' ? 'mobile' : 'iPad'} size`}
         src={window.location.href}
         className={css({
