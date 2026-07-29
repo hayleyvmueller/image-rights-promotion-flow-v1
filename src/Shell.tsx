@@ -2865,7 +2865,7 @@ function LegacyEditListingModal({ onClose }: { onClose: () => void }) {
             })}
           >
             <h2 className={css({ fontSize: '[24px]', lineHeight: '[32px]', fontWeight: '600', color: LEGACY_DARK })}>
-              Photos (13)
+              Photos
             </h2>
             <div className={hstack({ gap: '300', alignItems: 'center', flexWrap: 'wrap', mt: '500' })}>
               <IconPhotos size={3} />
@@ -3507,7 +3507,7 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
               <div className={hstack({ gap: '300', alignItems: 'center' })}>
                 <IconPhotos size={3} />
                 <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', fontWeight: '600', color: LEGACY_DARK })}>
-                  Photos (10)
+                  Photos
                 </span>
               </div>
               <span className={css({ fontSize: '[16px]', lineHeight: '[24px]', color: LEGACY_GRAY })}>
