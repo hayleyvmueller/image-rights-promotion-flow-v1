@@ -1198,6 +1198,18 @@
     padding-inline: var(--spacing-700);
 }
 
+  .bdr_\[4px\] {
+    border-radius: 4px;
+}
+
+  .px_200 {
+    padding-inline: var(--spacing-200);
+}
+
+  .py_100 {
+    padding-block: var(--spacing-100);
+}
+
   .bd-c_\[rgba\(0\,0\,0\,0\.1\)\] {
     border-color: rgba(0,0,0,0.1);
 }
@@ -1232,10 +1244,6 @@
 
   .px_300 {
     padding-inline: var(--spacing-300);
-}
-
-  .py_100 {
-    padding-block: var(--spacing-100);
 }
 
   .bd-c_border\.alternate {
@@ -1308,10 +1316,6 @@
 
   .ring_1px_solid {
     outline: 1px solid;
-}
-
-  .px_200 {
-    padding-inline: var(--spacing-200);
 }
 
   .bd-c_transparent {
@@ -1595,6 +1599,10 @@
     display: block;
 }
 
+  .d_none {
+    display: none;
+}
+
   .pos_relative {
     position: relative;
 }
@@ -1605,10 +1613,6 @@
 
   .fw_bold {
     font-weight: var(--font-weights-bold);
-}
-
-  .d_none {
-    display: none;
 }
 
   .z_navbar\.default {
@@ -6117,6 +6121,12 @@
   @media screen and (min-width: 30rem) {
     .xs\:gap_300 {
       gap: var(--spacing-300);
+}
+    .xs\:d_inline-flex {
+      display: inline-flex;
+}
+    .xs\:d_inline-block {
+      display: inline-block;
 }
     .xs\:flex-d_row {
       flex-direction: row;

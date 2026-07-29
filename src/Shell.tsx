@@ -379,6 +379,12 @@ function TopBar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
             w: { base: '145px', sm: '193px' },
           })}
         />
+        <Tag
+          dataColor="graySubtle"
+          className={css({ display: { base: 'none', xs: 'inline-flex' }, flexShrink: 0 })}
+        >
+          Sample prototype 7/29/2026
+        </Tag>
       </div>
 
       <div className={hstack({ gap: '400', alignItems: 'center', flexShrink: 0 })}>
@@ -2967,6 +2973,20 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
         <div className={hstack({ gap: '300', alignItems: 'center' })}>
           <LogoBrand className={css({ h: '22px', display: 'block' })} />
           <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>for Professionals</span>
+          <span
+            className={css({
+              display: { base: 'none', xs: 'inline-block' },
+              fontSize: '[12px]',
+              fontWeight: '400',
+              color: LEGACY_GRAY,
+              bg: LEGACY_BG,
+              borderRadius: '[4px]',
+              px: '200',
+              py: '100',
+            })}
+          >
+            Sample prototype 7/29/2026
+          </span>
         </div>
         <div className={hstack({ gap: '300', alignItems: 'center' })}>
           <div className={vstack({ alignItems: 'flex-end', gap: '0' })}>
