@@ -1604,8 +1604,16 @@ function PhotoUploadScreen({
   }
 
   const handleDropzoneClick = () => {
-    const remaining = SAMPLE_HOUSE_PHOTOS.filter((url) => !photos.includes(url))
-    if (remaining.length === 0) return
+    // Exclude anything already in this session's photos AND anything already
+    // authorized for this listing, so a deleted-then-re-added photo is never
+    // silently treated as "already covered" by the prior consent.
+    const excluded = new Set([...photos, ...listing.uploadedPhotos])
+    let remaining = SAMPLE_HOUSE_PHOTOS.filter((url) => !excluded.has(url))
+    if (remaining.length === 0) {
+      // Sample pool exhausted for this listing — recycle it with a
+      // cache-busting suffix so the dropzone still simulates a fresh upload.
+      remaining = SAMPLE_HOUSE_PHOTOS.map((url) => `${url}&v=${Date.now()}`)
+    }
     const batchSize = photos.length === 0 ? 5 : 3
     setPhotos((prev) => [...prev, ...remaining.slice(0, batchSize)])
   }
