@@ -2173,7 +2173,7 @@ function OverviewScreen({ onNext }: { onNext: () => void }) {
       <Card className={css({ px: { base: '400', lg: '800' }, py: { base: '500', lg: '700' } })}>
         <div className={vstack({ alignItems: 'flex-start', gap: '400' })}>
           <h2 className={css({ textStyle: 'headingMd', fontWeight: 'bold', color: 'text.base' })}>
-            Spotlight Listings — Photo Upload &amp; Image Rights
+            Spotlight Listings — Photo Upload &amp; Image Rights MVP
           </h2>
           <p className={css({ textStyle: 'bodyLg', color: 'text.alternate' })}>
             Our goal is to make every promoted listing stand out with a richer, more immersive
