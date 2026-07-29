@@ -372,6 +372,7 @@ function TopBar({ onMenuClick }: { onMenuClick?: () => void } = {}) {
           </button>
         )}
         <LogoRealtorProDefault
+          style={{}}
           className={css({
             display: 'block',
             flexShrink: 0,
@@ -2971,7 +2972,7 @@ function LegacyListingDetailPage({ onBack }: { onBack: () => void }) {
         })}
       >
         <div className={hstack({ gap: '300', alignItems: 'center' })}>
-          <LogoBrand className={css({ h: '22px', display: 'block' })} />
+          <LogoBrand style={{}} className={css({ h: '22px', display: 'block' })} />
           <span className={css({ fontSize: '[16px]', color: LEGACY_GRAY })}>for Professionals</span>
           <span
             className={css({
