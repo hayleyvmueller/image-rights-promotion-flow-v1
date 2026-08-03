@@ -1325,34 +1325,36 @@ function ListingDetailScreen({
                   </p>
                 </div>
 
-                <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
-                  <div className={hstack({ gap: '500', alignItems: 'center', flexWrap: 'wrap' })}>
-                    <div className={hstack({ gap: '200', alignItems: 'center', flexWrap: 'wrap' })}>
-                      {listing.uploadedPhotos.slice(0, 4).map((src, i) => (
-                        <img
-                          key={i}
-                          src={src}
-                          alt=""
-                          className={css({
-                            w: '95px',
-                            h: '63px',
-                            borderRadius: '200',
-                            objectFit: 'cover',
-                            flexShrink: 0,
-                            bg: 'bg.alternate',
-                          })}
-                        />
-                      ))}
+                {walkthroughAdded && (
+                  <div className={vstack({ alignItems: 'flex-start', gap: '200' })}>
+                    <div className={hstack({ gap: '500', alignItems: 'center', flexWrap: 'wrap' })}>
+                      <div className={hstack({ gap: '200', alignItems: 'center', flexWrap: 'wrap' })}>
+                        {listing.uploadedPhotos.slice(0, 4).map((src, i) => (
+                          <img
+                            key={i}
+                            src={src}
+                            alt=""
+                            className={css({
+                              w: '95px',
+                              h: '63px',
+                              borderRadius: '200',
+                              objectFit: 'cover',
+                              flexShrink: 0,
+                              bg: 'bg.alternate',
+                            })}
+                          />
+                        ))}
+                      </div>
+                      <Button styleType="Tertiary" size="sm" onClick={() => onEnhance(listing)}>
+                        Edit photos
+                      </Button>
                     </div>
-                    <Button styleType="Tertiary" size="sm" onClick={() => onEnhance(listing)}>
-                      Edit photos
-                    </Button>
+                    <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+                      Showing {Math.min(4, listing.uploadedPhotos.length)} of{' '}
+                      {listing.uploadedPhotos.length} photos
+                    </span>
                   </div>
-                  <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
-                    Showing {Math.min(4, listing.uploadedPhotos.length)} of{' '}
-                    {listing.uploadedPhotos.length} photos
-                  </span>
-                </div>
+                )}
               </div>
             ) : (
               <div
