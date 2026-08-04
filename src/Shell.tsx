@@ -2100,7 +2100,10 @@ function ExperienceNavPanel({
         </ListBox>
         <div className={css({ mt: 'auto', px: '500', pt: '500', pb: '1200' })}>
           <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
-            Sample prototype 7/29/2026
+            <span className={css({ fontWeight: 'bold', textTransform: 'uppercase' })}>
+              Sample prototype
+            </span>{' '}
+            Last updated: 8/4/2026
           </span>
         </div>
       </Modal.Body>
