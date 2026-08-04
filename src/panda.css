@@ -830,6 +830,10 @@
     --modal-width: 936px;
 }
 
+  .bg_transparent {
+    background: var(--colors-transparent);
+}
+
   .bg_bg\.inverse {
     background: var(--colors-bg-inverse);
 }
@@ -876,10 +880,6 @@
 
   .bg_\[\#f8f8f9\] {
     background: #f8f8f9;
-}
-
-  .bg_transparent {
-    background: var(--colors-transparent);
 }
 
   .bg_\[\#d92228\] {
@@ -1106,12 +1106,28 @@
     padding-block: var(--spacing-400);
 }
 
-  .py_600 {
-    padding-block: var(--spacing-600);
+  .bd-w_100 {
+    border-width: var(--border-widths-100);
+}
+
+  .border-style_solid {
+    border-style: solid;
 }
 
   .bd-c_border\.base {
     border-color: var(--colors-border-base);
+}
+
+  .bdr_200 {
+    border-radius: var(--radii-200);
+}
+
+  .py_300 {
+    padding-block: var(--spacing-300);
+}
+
+  .py_600 {
+    padding-block: var(--spacing-600);
 }
 
   .py_700 {
@@ -1122,20 +1138,8 @@
     border-radius: var(--radii-100);
 }
 
-  .bdr_200 {
-    border-radius: var(--radii-200);
-}
-
   .bdr_500 {
     border-radius: 500px;
-}
-
-  .bd-w_100 {
-    border-width: var(--border-widths-100);
-}
-
-  .border-style_solid {
-    border-style: solid;
 }
 
   .bd-c_bg\.base {
@@ -1188,10 +1192,6 @@
 
   .bd-c_\[\#4052a2\] {
     border-color: #4052a2;
-}
-
-  .py_300 {
-    padding-block: var(--spacing-300);
 }
 
   .px_700 {

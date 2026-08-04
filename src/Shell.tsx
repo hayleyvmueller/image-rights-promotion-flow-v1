@@ -2099,12 +2099,33 @@ function ExperienceNavPanel({
           </ListBox.Item>
         </ListBox>
         <div className={css({ mt: 'auto', px: '500', pt: '500', pb: '1200' })}>
-          <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
-            <span className={css({ fontWeight: 'bold', textTransform: 'uppercase' })}>
+          <div
+            className={vstack({
+              alignItems: 'flex-start',
+              gap: '100',
+              borderWidth: '100',
+              borderStyle: 'solid',
+              borderColor: 'border.base',
+              bg: 'transparent',
+              borderRadius: '200',
+              px: '400',
+              py: '300',
+            })}
+          >
+            <span
+              className={css({
+                textStyle: 'caption',
+                color: 'text.alternate',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+              })}
+            >
               Sample prototype
-            </span>{' '}
-            Last updated: 8/4/2026
-          </span>
+            </span>
+            <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+              Last updated: 8/4/2026
+            </span>
+          </div>
         </div>
       </Modal.Body>
     </Modal>
