@@ -2953,8 +2953,8 @@
     width: 48px;
 }
 
-  .pt_400 {
-    padding-top: var(--spacing-400);
+  .mt_auto {
+    margin-top: var(--spacing-auto);
 }
 
   .pt_72px {
@@ -3435,10 +3435,6 @@
     min-height: 100%;
 }
 
-  .mt_auto {
-    margin-top: var(--spacing-auto);
-}
-
   .top_\[12px\] {
     top: 12px;
 }
@@ -3449,6 +3445,10 @@
 
   .w_350px {
     width: 350px;
+}
+
+  .pt_400 {
+    padding-top: var(--spacing-400);
 }
 
   .min-h_36px {

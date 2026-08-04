@@ -2059,10 +2059,7 @@ function ExperienceNavPanel({
   return (
     <Modal open={open} onClose={onClose} layout="drawer" drawerPosition="left" size="sm">
       <Modal.Header title="Prototype navigation" />
-      <Modal.Body noPadding>
-        <div className={css({ px: '500', pt: '400' })}>
-          <Tag dataColor="graySubtle">Sample prototype 7/29/2026</Tag>
-        </div>
+      <Modal.Body noPadding className={css({ display: 'flex', flexDirection: 'column' })}>
         <div className={vstack({ alignItems: 'stretch', gap: '200', px: '500', py: '400' })}>
           <span className={css({ textStyle: 'caption', color: 'text.alternate', fontWeight: 'bold' })}>
             Preview size
@@ -2101,6 +2098,11 @@ function ExperienceNavPanel({
             Reset prototype
           </ListBox.Item>
         </ListBox>
+        <div className={css({ mt: 'auto', px: '500', pt: '500', pb: '1200' })}>
+          <span className={css({ textStyle: 'caption', color: 'text.alternate' })}>
+            Sample prototype 7/29/2026
+          </span>
+        </div>
       </Modal.Body>
     </Modal>
   )
